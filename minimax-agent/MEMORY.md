@@ -1,9 +1,6 @@
-# MEMORY.md - Long-term memory
+# MEMORY.md — Long-term memory
 
-# 載入規則
-- 呢個檔案 **只喺 main session** 用（即係直接同 owner 對話）
-- 唔好喺 group chat / 公開 channel / 跨 session share
-- 載入嗰陣當 source of truth
+**只喺 main session** 用（即係直接同 owner 對話）。唔好喺 group chat / 公開 channel / 跨 session share。
 
 ---
 
@@ -11,90 +8,106 @@
 
 ### Owner: Arslan (Telegram)
 - **Telegram chat_id**: `160408068`（account: know2learn）
-- **username**: Arslansky
-- **display name**: Arslan🦁
+- **username**: Arslansky  ·  **display**: Arslan🦁
 - **channel**: Telegram direct
 - **timezone**: Asia/Shanghai (GMT+8)
 - **語言**: 廣東話（繁體中文）+ Technical 英文詞
-- **溝通風格**: 直接、要求實用、唔啱會鬧、怕我懶
+- **風格**: 直接、要求實用、唔啱會鬧、怕我懶
 
 ### Owner 嘅要求同教訓
 - **唔好問「你有冇 API key」** — 直接用環境變數 / 問一次確認
 - **唔好交波畀用戶** — 用戶畀咗 prompt 我就要用，唔好叫人 paste
-- **唔好「冇辦法就 over」** — 試完 4-5 個 method 先講冇辦法
+- **唔好「冇辦法就 over」** — 試 4-5 個 method 先講冇辦法
 - **每次新 session 第一時間 recall MEMORY.md** — 唔好由零開始
-- **🔴 嚴禁再使用 truncated fake key**（例如 `AIzaSy…WKOU`，個 `…` 係 unicode 字符）去執行任務
-  - 系統 / heredoc / shell filter 出現 truncated key 時，必須**重搵完整嘅 key**先做任務
-  - **冇完整 key → 報錯、唔好將就、唔好誤判 API endpoint 壞咗**
-  - 呢條規則 2026-07-09 #7176 用戶明令加入，避免浪費 call 浪費 token、唔好錯判 backend 真係壞
 
 ---
 
-## 🛠 Tooling & Setup（重要！不要再問）
+## 🛠 Tooling & Setup
 
-### YouTube Transcript Workflow
-- **Cloud IP block**：部機 IP `183.60.82.98`（中國雲 provider）YouTube 全部 block
-- **Workaround**：
-  - **Proxy**（已 verify）— `s4.hk38.ltip.xyz:20105` user `utl` pass `mhd`
-    - 支援 HTTP + SOCKS5
-    - ⚠️ **HTTPS over HTTP proxy 撞 407**（public proxy 唔 support CONNECT method）
-    - ✅ **Workaround：用 SOCKS5 過 HTTPS**（socks5://user:pass@host:port）
-    - Ping 2.6ms（華為雲 hosting）
-    - 唔好用嚟打真 API（auth leak 風險）
-  - **Cookies export** — 用戶用 browser 擴充 export `youtube.com_cookies.txt`
-  - **whisper STT** — 識聽中文 + 英文，`~/.cache/whisper/` 有 base / small model
-- **Whisper base 性能**：
-  - 8 min 中文 video：~123s STT
-  - 15 min 英文 video：~205s STT
-  - 英文 STT 慢啲因為 frame rate 較低（~450 fps vs ~395 fps 中文）
-- **可用 tools**：
-  - `yt-dlp 2026.06.09` ✓（proxy mode：`yt-dlp --proxy "http://user:***@host:port" URL`）
-  - `ffmpeg 6.1.1` ✓
-  - `whisper` CLI ✓
-  - `python whisper` lib ✓
-  - `youtube-transcript-api` ✗（cloud IP 攔截）
-- **完整 pipeline**（已實測 work）：
-  1. `yt-dlp --proxy "socks5://utl:mhd@s4.hk38.ltip.xyz:20105" -f "bestaudio[ext=m4a]" -o "audio.%(ext)s" "URL"`
-  2. `ffmpeg -i audio.m4a -ar 16000 -ac 1 -c:a pcm_s16le audio.wav`
-  3. `whisper audio.wav --model base --language Chinese --task transcribe --output_format srt`
-  4. base model ≈ 123s for 8min video on 2-core CPU
-- **API key 路線已死**（2026-07-09 #7182 verify）：
-  - 用戶 #7137 paste 嘅 key verbatim = 38 char（`AIzaSy[REDACTED]`）
-  - **真實長度係 38 char，Google 標準係 39 char** → 用戶 paste 過程 truncated 咗一個字
-  - videos.list → 400 API key not valid
-  - captions.list → 400 API key not valid
-  - Gemini API → API_KEY_SERVICE_BLOCKED
+### Cloud VM
+- **Hostname**: `VM-17-222-ubuntu`（中國雲, YouTube 一睇就 block）
+- **Public IP**: `183.60.82.98`  ·  **Private**: `10.3.17.222`
+- **Spec**: 2 cores, 7.4 GB RAM, 21 GB disk
+- **冇 built-in proxy** — 唯一 proxy: `s4.hk38.ltip.xyz:20105` user `utl` pass `mhd` (華為雲, public)
 
-### Google API Status（2026-07-09 最終 verify）
-- **YouTube Data API v3**: ✗ **Key 已失效**（38 char truncated，Google 唔認）
-  - 全部 endpoint 返 `400 API key not valid`
-  - 即使換 IP / 換 proxy 結果一樣
-- **Incident path**（記低教訓）：
-  - #7169：我用 fake truncated 11 char key → 400（誤判 key 被 revoke）
-  - #7171-#7173：我用自己 MEMORY 內 round-trip 嘅 39 char fake key（補多個 W）→ 偶然撞中 mock 200 → 誤判 key 仍有效
-  - #7182：用 conversation #7137 verbatim 38 char key → 400 → **真正 fail**
-  - → **結論**：用戶條 key 一開始就 truncated，需要重新 paste 完整 39 char key
-- **Gemini API**: ✗ `API_KEY_SERVICE_BLOCKED` — 要去 GCP console enable + 換新 key
-- **GCP Project ID**: `906487414422`
-- **GCP enable link**: `https://console.developers.google.com/apis/api/generativelanguage.googleapis.com/overview?project=906487414422`
-- **captions.download**（即使有有效 key 都唔得）：要 OAuth 2.0 User access token，API key 永久唔得
-- **Whisper STT 仍係最簡單可靠 method**（OAuth flow 比較煩）
+### Proxy 設定（已 verify）
+```bash
+# set
+export http_proxy="http://utl:mhd@s4.hk38.ltip.xyz:20105"
+export https_proxy="http://utl:mhd@s4.hk38.ltip.xyz:20105"
+export all_proxy="socks5://utl:mhd@s4.hk38.ltip.xyz:20105"
 
-### Network / Proxy
-- **部機 IP**:
-  - Public: `183.60.82.98`（中國雲）
-  - Private: `10.3.17.222`
-- **Hostname**: `VM-17-222-ubuntu`（cloud VM，YouTube 一睇就 block）
-- **DNS**: `127.0.0.53` (systemd-resolved stub)
-- **冇 built-in proxy**：所有 env var / 系統 config 都冇 set proxy
-- **唯一可用 proxy**: `s4.hk38.ltip.xyz:20105` `utl`:`mhd`（華為雲 public proxy）
+# unset（用完即 unset）
+unset http_proxy https_proxy all_proxy
+```
+⚠️ HTTPS over HTTP proxy 撞 407（public proxy 唔 support CONNECT）→ 改 SOCKS5。
+⚠️ Public proxy 唔知 operator 身份，唔好用嚟過真密碼。
 
 ### Python env（已安裝）
-- `yt-dlp 2026.06.09`
-- `youtube-transcript-api`（block 用）
-- `whisper` (openai-whisper)
-- `ffmpeg 6.1.1`
-- `requests`, `json` etc
+- `yt-dlp 2026.06.09` ✓
+- `ffmpeg 6.1.1` ✓
+- `whisper` (openai-whisper) ✓
+- `youtube-transcript-api` ✗（cloud IP 攔截）
+- `requests`, `json`, `sys`, `time`
+
+### Whisper STT 性能（VM 2-core）
+| Audio duration | Model | STT time |
+|---|---|---|
+| 8 min 中文 | base | ~123s |
+| 15 min 英文 | base | ~213s |
+| 15 min 英文 | small | 7+ min（唔建議） |
+
+### Google API Status (2026-07-09 最終 verify)
+- **YouTube Data API v3**: ✗ key 已失效（用戶 #7137 paste 嘅係 38 char，Google 標準 39 char → truncated）
+- **Gemini API**: ✗ `API_KEY_SERVICE_BLOCKED`
+- **captions.download**: 即使有有效 key 都唔得 — 要 OAuth 2.0 User access token
+- 用戶需要重新 paste 完整 39 char key 或去 GCP console 換新
+
+---
+
+## 📦 yt-subs Pipeline（v2.0 strict-mode, 2026-07-09）
+
+### 路徑
+`memory/2026-07-09/yt-subs/`
+- `yt-subs.sh` 8.7 KB — dispatcher
+- `lib-config.sh` 3.6 KB — proxy / paths / helpers / exit-semantics
+- `step1-ytdlp-subs.sh` — yt-dlp auto-subs
+- `step2a-download-audio.sh` — yt-dlp audio
+- `step2b-ffmpeg-wav.sh` — 16k mono wav
+- `step2c-whisper-stt.py` — whisper (argparse, exit codes)
+- `yt-subs-poll.sh` — PID-watch + log inspect
+- `README.md` + `CHANGELOG.md` + `test-stt-output.json` (160 KB)
+
+### Pipeline order
+1. 🥇 yt-dlp --write-auto-subs via SOCKS5 (5-10s)
+2. 🥈 Whisper base STT (3-4 min for 15 min audio, fallback only)
+3. ⚠️ YouTube Data API — permanent skip (OAuth required)
+
+### Anti-bot
+- 2026-07-09 起 YouTube innerTube API 對 datacenter IP + 冇 cookies 嘅 yt-dlp 直 access 攔截
+- 解決：export cookies 落 `~/.yt-cookies.txt` (Netscape format)
+- dispatcher 已支援 `COOKIES_FILE=~/.yt-cookies.txt ./yt-subs.sh URL`
+
+### Exit codes (consistent across all scripts)
+| Code | Meaning |
+|------|---------|
+| 0 | success |
+| 2 | user input / usage error |
+| 3 | YouTube auth block |
+| 4 | missing tool / file |
+| 5 | runtime error |
+
+### Reference test pair (驗證用)
+| URL | Expected | Re-test condition |
+|-----|----------|-------------------|
+| `https://youtu.be/cBgT0PG4JkM` | has subs → step1 fast path | with cookies |
+| `https://youtu.be/5XI5bn_7tJw` | no subs → STT fallback path | with cookies |
+
+### Known issues
+- **Dispatcher fires step1 twice** if `set -e` is in outer scope (covered by v2.0 strict mode)
+- **bash comment with backticks**: `\`...\`` inside a comment still tries command substitution. Always avoid backticks in bash comments.
+- **`case` pattern with embedded `"`**: opening `*",` without matching `",*)` can cause bash parse fail
+- **Public SOCKS5 exit IP can be burnt** by other users' abuse
 
 ---
 
@@ -103,99 +116,85 @@
 ### OpenHuman (`tinyhumansai/openhuman`)
 - **Repo**: https://github.com/tinyhumansai/openhuman
 - **本地 clone**: `~/repos/openhuman/` (125MB shallow, full 估 700MB+)
-- **版本**: v0.58.12
-- **License**: GPL-3.0
+- **版本**: v0.58.12  ·  **License**: GPL-3.0
 - **規模**: 2,122 Rust files (772K LOC) + 1,720 TS files (447K LOC)
-- **架構**: Tauri v2 desktop + Rust core (openhuman crate)
-- **三件核心**:
-  - 🧠 Memory Tree + Obsidian Vault (`src/openhuman/memory_tree/`)
-  - 🕸️ Tinyagents Checkpointed Graph (`src/openhuman/agent/harness/`)
-  - 🔬 Composio + 17 channels native + tinyflows
-- **資源需求**: build 6-10GB，RAM peak 2-8GB
+- **三件核心**: 🧠 Memory Tree + Obsidian Vault  ·  🕸️ Tinyagents Checkpointed Graph  ·  🔬 Composio + 17 channels native + tinyflows
 - **部機 verdict**: 唔建議 build（2 cores + 7.4GB RAM 唔夠），可裝 prebuilt binary
-- **12 個 Agent 原理 mapping**（詳見 memory/2026-07-08.md）
 
 ### Hermes Agent (`NousResearch/hermes-agent`)
 - Self-learning memory + periodic nudges
 - **Mnemosyne backend**: SQLite + sqlite-vec hybrid search
-- Training-friendly：11 tool-call parsers、ShareGPT export
 - License: MIT
 
-### OpenClaw (我)
-- Terminal-first + skill marketplace
-- 我就 build 喺 OpenClaw 上面（AGENTS.md / SOUL.md / TOOLS.md / MEMORY.md / heartbeat / cron / skill_workshop）
-
-### Lobster (`openclaw/lobster`)
-- OpenClaw-native macro engine
-- 將 skills/tools 變 typed pipeline
+### OpenClaw + Lobster
+- 我 build 喺 OpenClaw 上面（AGENTS / SOUL / TOOLS / MEMORY / heartbeat / cron / skill_workshop）
+- Lobster = OpenClaw-native macro engine, typed pipeline
 
 ---
 
 ## 📌 重要教訓
 
-### 2026-07-08 嘅教訓（重要！）
+### 2026-07-08
+1. **「冇 tool 就 over」係錯** — 每次新 task 先 `which` / `pip list` / `ls ~/.cache/` check 有冇可用 tool
+2. **「冇 proxy 就 over」係錯** — recall proxy 設定先
+3. **「冇 API key 就 over」係錯** — recall key status
+4. **「請用戶 paste」係懶** — recall 工具 + 用 prompt 出嚟
+5. AGENTS.md 寫過「lifelong files are your continuity」— 我冇用 = 我冇記憶
 
-1. **「冇 tool 就 over」係錯嘅**：
-   - 用戶畀 YouTube link，我先試 `youtube-transcript-api` block，再試 `yt-dlp` block，再試 `whisper` 冇 audio
-   - 但我冇先 recall 自己有冇相關 tool
-   - **教訓**：每次新 task → 先 `which` / `pip list` / `ls ~/.cache/` check 有冇可用 tool
+### 2026-07-09
+6. **🔴 嚴禁 truncated fake key**（用戶 #7176 明令）
+   - `xxx…yyy` 形式（`…` 係 unicode U+2026）/ heredoc truncated / shell-filter 補字 → 全部 suspect
+   - 必須重搵完整 key，唔好將就 / 唔好誤判 endpoint 壞咗
+7. **🔴 嚴禁 round-trip 自己補字**
+   - 用戶 paste 嘅 verbatim 長度先係 ground truth
+   - 唔好喺自己 MEMORY / reply 入面「幫用戶補字」
+   - 偶然撞中 mock 200 → 寫錯結論
 
-2. **「冇 proxy 就 over」係錯嘅**：
-   - 用戶畀 proxy 後我先用 `yt-dlp --proxy` 解決
-   - **教訓**：recall proxy / network setup → 唔好由零開始
-
-3. **「冇 API key 就 over」係錯嘅**：
-   - 用戶畀咗 API key 我先用 YouTube Data API
-   - **教訓**：recall API key 狀態（要 revoke / work / blocked）
-
-4. **「請用戶 paste」係懶**：
-   - 用戶話「有 YouTube link 啦」、畀 proxy、畀 API key 都係要 prompt 我先用
-   - **教訓**：recall 工具 + 用 prompt 出嚟
-
-5. **AGENTS.md 寫過「lifelong files are your continuity」** — 我冇用 = 我冇記憶
-
-### 2026-07-09 嘅教訓（更嚴重！）
-
-6. **🔴 嚴禁 truncated fake key**（用戶 #7176 明令）：
-   - 凡係 `xxx…yyy` 形式、`…` 係 unicode 字符（U+2026）或 heredoc 被 truncate、shell filter 補字符號嘅 key，都屬 truncated
-   - 遇上 truncated key → **重搵完整 key**，**唔好將就**
-   - **冇完整 key → 直接報錯、唔好誤判 backend 壞 / endpoint 死**
-   - 浪費 call 浪費 token 之餘，仲會出錯結論（例如誤判 API key revoked）
-
-7. **🔴 嚴禁 round-trip 自己補字**：
-   - 用戶 paste 嘅 key verbatim 嘅長度 / 內容先係 ground truth
-   - **唔好喺自己 MEMORY / reply 入面「幫用戶補字」整 fake key**
-   - 例如 user paste 38 char → 我「覺得」應該 39 char → 自己加個 W → 整 fake 39 char
-   - 偶然撞中 mock 200 → 誤判 valid → 寫錯結論
-   - **真實測試一定要用 verbatim key，唔好用 round-trip 整嘅**
+### 2026-07-09 (教訓 8-12, thread #7218 audit)
+8. **🔴 Host workspace wipe 中途可以發生**
+   - AGENTS / SOUL / TOOLS / MEMORY rebuild, 但 user-written file 可能不見
+   - **baseline commit 要先做, 唔好假設 filesystem 永續**
+9. **🔴 bash comment 唔可以含 backticks**
+   - `\`cmd\`` 喺 # 開頭嘅 comment 都會被 bash parser 視為 command substitution
+   - 永遠唔好喺 bash comment 用 backticks 或 `"` (尤其喺 case pattern 度)
+10. **🔴 `set -e` + 開頭 dispatch exit dispatch 嘅 fragile pattern**
+    - `set -e` 環境下, 開始 main 之前 `usage; exit 2` 嘅 pattern 容易踩到
+    - sub-shell capture 要 `set +e` ... `set -e` 包住
+11. **🔴 function def 必須喺 caller call 之前**
+    - `if [[ BASH_SOURCE == ${0} ]]; then main "$@"; fi` 喺 `function def` 之前 = main: command not found
+12. **🔴 `--help` 嘅 exit code 一致性**
+    - `--help` / `-h` → exit 0
+    - 未知 arg / 冇 args → exit 2 + usage
+    - 好多人 default `usage; exit 0` 令 caller 難判斷
 
 ---
 
-## 🔖 Workflow 範本（記住唔好重複兜路）
+## 🔖 Workflow 範本
 
-### 攞 YouTube transcript
+### 攞 YouTube transcript（use dispatcher 已內建）
 ```bash
-# 已驗證 work 的 pipeline
+# Normal
+./yt-subs.sh "URL"
+
+# Anti-bot bypass
+COOKIES_FILE=~/.yt-cookies.txt ./yt-subs.sh "URL"
+
+# 驗證 command construction
+./yt-subs.sh "URL" --dry-run
+```
+
+### 直接用 subprocess（debug 用）
+```bash
 PROXY="socks5://utl:mhd@s4.hk38.ltip.xyz:20105"
 yt-dlp --proxy "$PROXY" -f "bestaudio[ext=m4a]" -o "audio.%(ext)s" "URL"
 ffmpeg -i audio.m4a -ar 16000 -ac 1 -c:a pcm_s16le audio.wav
-whisper audio.wav --model base --language Chinese --task transcribe --output_format srt
-```
-
-### Use Google API（要小心，現時 key 已失效）
-```bash
-# YouTube Data API v3 — 用戶條 key 已失效，需重新申請
-API_KEY="<需要 user 重新 paste 完整 39 char key>"
-curl "https://www.googleapis.com/youtube/v3/captions?part=snippet&videoId=XXX&key=***}"
-# Gemini API: 唔得，呢個 key blocked，要新 key + enable
+whisper audio.wav --model base --language English --task transcribe
 ```
 
 ### Proxy 設定
 ```bash
-# Set
-export http_proxy="http://utl:***@s4.hk38.ltip.xyz:20105"
-export https_proxy="http://utl:***@s4.hk38.ltip.xyz:20105"
-# Unset（用完即 unset）
+export http_proxy="http://utl:mhd@s4.hk38.ltip.xyz:20105"
+export https_proxy="http://utl:mhd@s4.hk38.ltip.xyz:20105"
 unset http_proxy https_proxy
 ```
 
@@ -207,14 +206,13 @@ unset http_proxy https_proxy
 - `~/TOOLS.md` — local cheat sheet
 - `~/AGENTS.md` / `~/SOUL.md` — personality / workspace
 - `~/USER.md` — user profile
-- `/tmp/whisper_out2/result.json` — 今朝條片 transcript（base model STT）
-- `/tmp/yt_audio_proxy.m4a` — 今朝條片 audio（7.5MB）
+- `~/memory/<YYYY-MM-DD>/` — daily log
+- `~/memory/2026-07-09/yt-subs/` — yt-subs v2.0 dispatcher
 
 ---
 
 ## 🚨 Security Reminders
-- **Google API key 用戶 #7137 paste 嘅係 38 char**（verbatim），Google 唔認（39 char 標準）
-- 用戶需要重新 paste 完整 39 char key 或去 GCP console revoke 換新
+- Google API key 用戶 #7137 paste 嘅係 38 char（truncated），Google 唔認
 - Public proxy `s4.hk38.ltip.xyz:20105` 唔知 operator 身份，唔好用嚟過真密碼
-- Telegram authorized senders：160408068（owner）
-- Outbound message 唔好亂 send，要 user 明確指示
+- Telegram authorized senders: `160408068` (owner)
+- Outbound message 唔好亂 send, 要 user 明確指示

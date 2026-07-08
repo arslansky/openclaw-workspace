@@ -75,7 +75,7 @@ toolbox/
 |------|-----|------|------|
 | `arslansky/hermes-backup` | github.com/arslansky/hermes-backup | Hermes VM 備份（舊） | ✅ 正常 |
 | `arslansky/toolbox` | github.com/arslansky/toolbox | **統一 script registry** | ✅ 正常 |
-| `arslansky/openclaw-workspace` | github.com/arslansky/openclaw-workspace | OpenClaw workspace 備份 | ❌ **404 — 已斷** |
+| `arslansky/openclaw-workspace` | github.com/arslansky/openclaw-workspace | OpenClaw workspace 備份 | ✅ **已修復（2026-07-09）** |
 
 > ⚠️ `openclaw-workspace` 404，需要盡快修復（ recreate 或從頭 push）
 
@@ -103,7 +103,7 @@ toolbox/
 ## 待完成工作（TODO）
 
 - [ ] ZO VM 尚未 bootstrap toolbox
-- [ ] `openclaw-workspace` GitHub repo 需要 recreate 或修復
+- [x] `openclaw-workspace` GitHub repo recreate + workspace backup 上線（2026-07-09）
 - [ ] Hermes bot token `[BOT_TOKEN_REDACTED]` 需要確認用途
 - [ ] `janzaibot` 用途待確認
 
@@ -115,5 +115,5 @@ toolbox/
 |------|------|
 | 2026-07-09 | 廢除 symlink，採用 Plan B 直接 clone toolbox；建立 `arslansky/toolbox` 統一 script registry；兩邊 VM 完成 bootstrap |
 | 2026-07-09 | 建立 `toolbox-daily-sync` cron（04:00 daily，Asia/Shanghai）|
-| 2026-07-09 | 發現 `openclaw-workspace` GitHub repo 404（backup 已斷）|
+| 2026-07-09 | `openclaw-workspace` GitHub repo recreate 成功，workspace backup 重新上線；設定每日 04:30 auto-backup cron |
 | 2026-07-05 | `zhi-api/kimi-k2.6` 死亡，image model 需更換 |

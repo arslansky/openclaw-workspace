@@ -1,0 +1,37 @@
+# Large data — exclude from git backup
+agents_backup/
+minimax-agent/memory/
+ds-agent/
+evie-gallery/
+para/
+projects/
+skill-learning/
+temp/
+images/
+media/
+core/
+docs/
+examples/
+ops/
+loops/
+
+# OS
+.DS_Store
+*.swp
+
+# Large log files
+*.log
+
+# OpenClaw runtime files
+openclaw-workspace-state.json
+threads_post.png
+
+# Test files
+test_write.txt
+
+# Backup directories
+scripts.bak.*/
+
+# Embedded repos (not part of main backup)
+minimax-agent/repos/
+toolbox_repo/

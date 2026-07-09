@@ -19,6 +19,56 @@
 - 眼神：柔中堅定（soft but firm gaze）
 - 淡妝，粉色腮紅
 
+**Evie 眼型喜好（2026-07-10）：**
+用呢個 reference 做 base：`~/.openclaw/media/inbound/71e567ae-4070-47db-a4de-0f7a9766d117.jpg`
+
+眼型描述（偏好）：
+1. **Soft Almond** — soft almond-shaped eyes, gentle innocent gaze, downward curved outer corners, innocent lively sparkle
+2. **Large Round** — large round innocent eyes, big bright sparkling gaze, cute sweet expression
+3. **Cat Eyes** — cat eyes with slightly upturned outer corners, mysterious smizing gentle gaze
+4. **Monolid Soft** — monolid soft almond eyes, gentle innocent droopy gaze, sleepy vulnerable sweet
+5. **Deep Set** — deep set soft eyes, gentle downward gaze, calm peaceful serene expression
+
+**穿搭建議：**
+- Cyberpunk 戰鬥服：white futuristic combat suit + glowing neon cyan accents
+- 運動風：white dry athletic top + sports field background
+
+---
+
+## 🎨 Evie 最終五官選擇（2026-07-10）
+
+**Reference:** `71e567ae-4070-47db-a4de-0f7a9766d117.jpg`
+
+| 部位 | 選擇 | 描述 |
+|---|---|---|
+| 髮 | MEDIUM | black wet-look hair, slight outward curved tips |
+| 眼 | A2 | Soft almond eyes, slight upward angle, warm sparkle |
+| 眉 | B3 | Straight flat, slight lift at tail |
+| 面 | C4 | Fox-shaped, narrow chin |
+| 嘴 | D1 | Soft sweet gentle smile |
+| 鼻 | E4 | Short soft cute, rounded tip |
+
+**完整 Prompt：**
+```
+Asian woman portrait, luminous porcelain skin, MEDIUM black wet-look hair with slight outward curved tips, fox-shaped face with narrow chin, soft almond-shaped eyes with slight upward angle and warm sparkle, gentle innocent gaze, straight flat eyebrows with slight lift at tail, soft sweet gentle smile lips, short soft cute nose with rounded tip, light natural makeup with pink blush. White dry athletic top, sports field background, soft warm cinematic lighting, front facing, no text, no watermark
+```
+
+---
+
+## 👁️ 眼型測試記錄（廢片參考）
+
+| 代號 | 眼型 | 描述 |
+|---|---|---|
+| A1 | Soft Almond | downward curved corners, lively sparkle |
+| A2 ✅ | Soft Almond | slight upward angle, warm sparkle | ← **選定** |
+| A3 | Soft Almond | natural width, gentle glow |
+| A4 | Soft Almond | relaxed eyelids, peaceful glow |
+| A5 | Soft Almond | dreamy sparkle, dreamy expression |
+| B | Large Round | big bright sparkling gaze |
+| C | Cat Eyes | upturned outer corners |
+| D | Monolid Soft | gentle droopy gaze |
+| E | Deep Set | calm serene gaze |
+
 **Evie cyberpunk 白戰鬥服（無武器）prompt（英文原版）：**
 ```
 Asian woman portrait, delicate porcelain skin, short black-brown hair with subtle waves at ends, small sharp delicate heart-shaped face, gentle almond eyes with natural double eyelids, soft but firm gaze, light natural makeup with pink blush. Cyberpunk warrior in white futuristic combat suit with glowing neon cyan accents, tech-wear battle armor, sleek white LED trim, combat gloves, holographic HUD elements, battle-ready pose, dark moody lighting with cyan rim light, futuristic sci-fi aesthetic, highly detailed, cinematic, no weapons
@@ -167,4 +217,96 @@ hermes-backup/
 - **同步方式:** 直接 clone，唔用 symlink
 - **每日 cron:** 04:00 Asia/Shanghai 自動 sync
 - **Backup:** scripts.bak.20260709/ 保留舊版
+
+## 📊 AI 新聞顧問分析框架（2026-07-10）
+
+### 觸發條件（日常 summary ≠ 顧問模式）
+出现以下任意一个 → 自动升级为顾问模式：
+- 創投金額 > $100M
+- 知名研究者（一級 source）親口說
+- 技術方向逆轉（之前業界共識被挑戰）
+- 涉及你自己的實際決策（模型選型、架構、投資）
+
+### 觸發指令
+> 「顧問模式分析呢篇」
+
+---
+
+### 9步分析流程
+
+**Step 1 — Source 溯源（消息源分級）**
+| 等級 | 定義 |
+|------|------|
+| 一級 | 科學家/研究者親口說（Noam Brown、Fei-Fei Li） |
+| 二級 | 深度報導（TechCrunch、The Information） |
+| 三級 | 轉述/解讀（動區、Twitter thread） |
+| 四級 | 公關稿包裝成新聞 |
+
+**Step 2 — 利益方定位**
+- 邊個講？幾時講？點解係呢個時間？
+- 邊個受益？
+- 任何「呢樣嘢會被取代」的說法，要問：取代緊誰？
+
+**Step 3 — 技術約束 vs Marketing**
+- 係底層演算法/算力/數據嘅突破，定係engineering堆砌？
+- Demo表演 ≠ 成熟產品
+- 學術界有冇保留意見？
+
+**Step 4 — 方向 × 時間（長短拆開）**
+| 層次 | 問題 |
+|------|------|
+| 方向啱唔啱？ | long-term trend |
+| 幾時發生？ | 1年？5年？呢個先係真正uncertainty |
+
+**Step 5 — 框架識別**
+- Big Model 派 framework：Bitter Lesson — 計算係王，engineering係臨時橋樑
+- Big Harness 派 framework：Production Reality — 真實部署有无数细节，模型不是银弹
+- 兩個都係真，問題係喺唔同意義系統入面討論
+
+**Step 6 — 不變量 vs 暫時優勢**
+不變量（長期有意義）：
+- 物理世界互動數據嘅稀缺性
+- 推理能力嘅 scaling 規律
+- 部署可靠性嘅必要成本
+
+暫時優勢（容易被顛覆）：
+- 任何靠 current model 能力上限嘅 workaround
+- 任何靠「模型未內建」嘅 scaffolding
+
+**Step 7 — 缺席的聲音**
+- 邊個冇喺度講嘢？
+- 創投/記者吹捧緊，但領域內 research scientist 點睇？
+
+**Step 8 — 決策代價**
+- 如果信咗，錯咗代價係幾多？
+- 如果錯過咗，對嘅代價係幾多？
+
+**Step 9 — 主動對立面搜索 + 預測筆記**
+- 每次分析：主動搵最強反調——「邊個係最sharp的反對意見？」
+- 有立場預測 → 寫入 `memory/ai-predictions.md` 入庫追蹤
+- 之後翻睇，係咪應驗，定期更新命中率
+
+---
+
+### Output 格式分級
+
+| 格式 | 用途 |
+|------|------|
+| 速讀版（3-5句） | 即時 TG 回覆 |
+| 標準版（9步框架） | 一般深入分析 |
+| 決策簡報版 | 涉及你實際取捨時 |
+| 預測追蹤版 | 有立場預測後，入庫 |
+
+---
+
+### 框架 self-review（每季）
+每季檢查一次：
+1. 過去3個月預測命中率點評
+2. 有無框架未覆蓋嘅分析盲點
+3. AI 行業基本假設有無逆轉
+
+---
+
+### 更新記錄
+- 2026-07-10：初始化框架
 

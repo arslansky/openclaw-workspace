@@ -1,0 +1,47 @@
+{
+  "hooks": {
+    "PreCompact": [
+      {
+        "matcher": ".*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/home/ubuntu/.openclaw/workspace/minimax-agent/hooks/pre_compact_snapshot.sh",
+            "env": {
+              "OPENCLAW_EVENT": "PreCompact"
+            }
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": ".*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/home/ubuntu/.openclaw/workspace/minimax-agent/hooks/pre_compact_snapshot.sh",
+            "env": {
+              "OPENCLAW_EVENT": "Stop",
+              "OPENCLAW_REASON": "session-stop"
+            }
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "matcher": ".*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/home/ubuntu/.openclaw/workspace/minimax-agent/hooks/recall_snapshot.sh",
+            "env": {
+              "OPENCLAW_EVENT": "SessionStart"
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

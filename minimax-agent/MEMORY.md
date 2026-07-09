@@ -1,3 +1,4 @@
+<!-- LAST_SNAPSHOT=1783619334 -->
 # MEMORY.md — Long-term memory
 
 **只喺 main session** 用（即係直接同 owner 對話）。唔好喺 group chat / 公開 channel / 跨 session share。
@@ -25,10 +26,11 @@
 ## 🛠 Tooling & Setup
 
 ### Cloud VM
-- **Hostname**: `VM-17-222-ubuntu`（中國雲, YouTube 一睇就 block）
+- **Hostname**: `VM-17-222-ubuntu`（中國雲）
 - **Public IP**: `183.60.82.98`  ·  **Private**: `10.3.17.222`
 - **Spec**: 2 cores, 7.4 GB RAM, 21 GB disk
 - **冇 built-in proxy** — 唯一 proxy: `s4.hk38.ltip.xyz:20105` user `utl` pass `mhd` (華為雲, public)
+- **YouTube 可達**: 2026-07-09 verified — VM + SOCKS5 proxy 直接 hit innerTube API 拎 subs OK (5-7 秒出 .vtt)。 舊话「一睇就 block」係 stale / wrong, 參考 「🩺 Anti-bot evidence」section.
 
 ### Proxy 設定（已 verify）
 ```bash
@@ -47,7 +49,7 @@ unset http_proxy https_proxy all_proxy
 - `yt-dlp 2026.06.09` ✓
 - `ffmpeg 6.1.1` ✓
 - `whisper` (openai-whisper) ✓
-- `youtube-transcript-api` ✗（cloud IP 攔截）
+- `youtube-transcript-api` ✓（裝咗，但 status ไม่ calibrate； prefer yt-dlp 因為 verified work）
 - `requests`, `json`, `sys`, `time`
 
 ### Whisper STT 性能（VM 2-core）
@@ -58,10 +60,10 @@ unset http_proxy https_proxy all_proxy
 | 15 min 英文 | small | 7+ min（唔建議） |
 
 ### Google API Status (2026-07-09 最終 verify)
-- **YouTube Data API v3**: ✗ key 已失效（用戶 #7137 paste 嘅係 38 char，Google 標準 39 char → truncated）
+- **YouTube Data API v3**: ✗ user の key suspect truncated (user #7137 pasted 38 chars, Google standard = 39)
 - **Gemini API**: ✗ `API_KEY_SERVICE_BLOCKED`
-- **captions.download**: 即使有有效 key 都唔得 — 要 OAuth 2.0 User access token
-- 用戶需要重新 paste 完整 39 char key 或去 GCP console 換新
+- **captions.download**: 即使有效 key 都要 OAuth 2.0 User access token; API key 不足
+- **結論**: transcript 提取 path 完全唔靠 Google API; 走 yt-dlp + proxy
 
 ---
 
@@ -79,14 +81,22 @@ unset http_proxy https_proxy all_proxy
 - `README.md` + `CHANGELOG.md` + `test-stt-output.json` (160 KB)
 
 ### Pipeline order
-1. 🥇 yt-dlp --write-auto-subs via SOCKS5 (5-10s)
+1. 🥇 yt-dlp --write-auto-subs via SOCKS5 (5-10s) — verified work on 2026-07-09
 2. 🥈 Whisper base STT (3-4 min for 15 min audio, fallback only)
-3. ⚠️ YouTube Data API — permanent skip (OAuth required)
+3. ⚠️ YouTube Data API — permanent skip (OAuth required, key truncated)
 
-### Anti-bot
-- 2026-07-09 起 YouTube innerTube API 對 datacenter IP + 冇 cookies 嘅 yt-dlp 直 access 攔截
-- 解決：export cookies 落 `~/.yt-cookies.txt` (Netscape format)
-- dispatcher 已支援 `COOKIES_FILE=~/.yt-cookies.txt ./yt-subs.sh URL`
+### 🩺 Anti-bot evidence (single source of truth)
+
+**Claim**: VM + SOCKS5 proxy + 冇 cookies 直接 hit YouTube subs extraction — **works** for `https://youtu.be/-fSjdYzrFvA` (5-7 秒出 141KB en.vtt + multilingual siblings).
+
+**Retracted stale claims**:
+- ❗ 「YouTube 完全 block datacenter IP + 冇 cookies」 — false. SOCKS5 routing 過 innerTube API 喺呢個 stack 走通。
+- ❗ 「SOCKS5 over public proxy 過唔到 HTTPS」 — outdated. yt-dlp XML/RPC sub-fetch 唔需要 CONNECT tunnel。
+
+**Rate-limit caveat** (2026-07-09 08:30 observable):
+- 同一 IP 短時間多次 hit subs endpoint → YouTube 返 HTTP 429 → 只主語 .vtt 寫到, 翻譯(s) 寫唔到。
+- Workaround: dispatcher 落 step 時 set `--sub-langs` only what you need; 或者 sleep 60 sec retry; 或者 cookies 同事。
+- dispatcher 已支援 `COOKIES_FILE=~/.yt-cookies.txt ./yt-subs.sh URL` (能開則閉, 未需要)。
 
 ### Exit codes (consistent across all scripts)
 | Code | Meaning |
@@ -97,11 +107,12 @@ unset http_proxy https_proxy all_proxy
 | 4 | missing tool / file |
 | 5 | runtime error |
 
-### Reference test pair (驗證用)
-| URL | Expected | Re-test condition |
-|-----|----------|-------------------|
-| `https://youtu.be/cBgT0PG4JkM` | has subs → step1 fast path | with cookies |
-| `https://youtu.be/5XI5bn_7tJw` | no subs → STT fallback path | with cookies |
+### Reference test pair (validated 2026-07-09 08:25)
+| URL | Result | Path | Evidence |
+|-----|--------|------|----------|
+| `https://youtu.be/-fSjdYzrFvA` | 1-3× .vtt (en 141KB, zh-Hant 137KB, zh-Hans 152KB; count 看 429 luck) | step1 fast (5 sec, exit 0) | `/tmp/yt-subs/<TS>-<PID>.*.vtt` |
+| `https://youtu.be/cBgT0PG4JkM` | ⏳ unregressed | with cookies / proxy | re-run when needed |
+| `https://youtu.be/5XI5bn_7tJw` | ⏳ unregressed | with cookies / proxy | re-run when needed |
 
 ### Known issues
 - **Dispatcher fires step1 twice** if `set -e` is in outer scope (covered by v2.0 strict mode)
@@ -167,6 +178,13 @@ unset http_proxy https_proxy all_proxy
     - 未知 arg / 冇 args → exit 2 + usage
     - 好多人 default `usage; exit 0` 令 caller 難判斷
 
+### 2026-07-09 (教訓 13, post-E2E audit, thread #7241-#7250)
+13. **🔴 Theory > Evidence rule** (Evidence-First Rule)
+    - 「technical claim 要以 真· command + 真· output 為證」。 MEMORY 寫過嘅 prediction 唔等於 fact。
+    - Default action hierarchy: 真· endpoint (5-30 sec cheap) > --dry-run / syntax-only (limit debug use only)
+    - User 拍 URL 嚟 = 「真· user-facing test request」, 必須實 retry 先 reply
+    - 2026-07-09 thread 5 round 衝突 class: 我 dedupe 複数 round 嘅 stale verdict, 浪費 token + 全個 conversation 混亂了
+
 ---
 
 ## 🔖 Workflow 範本
@@ -216,3 +234,4 @@ unset http_proxy https_proxy
 - Public proxy `s4.hk38.ltip.xyz:20105` 唔知 operator 身份，唔好用嚟過真密碼
 - Telegram authorized senders: `160408068` (owner)
 - Outbound message 唔好亂 send, 要 user 明確指示
+

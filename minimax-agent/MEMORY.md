@@ -180,6 +180,23 @@ unset http_proxy https_proxy all_proxy
 
 ### 2026-07-09 (教訓 13, post-E2E audit, thread #7241-#7250)
 13. **🔴 Theory > Evidence rule** (Evidence-First Rule)
+
+### 2026-07-11 (教訓 14, rendering artifact, thread #7321)
+14. **🔴 `[e~[` 結尾符號係 OpenClaw / provider SSE stream corruption，唔係 reply content**
+    - **Symptom**: long-form reply 收尾位置 (Telegram messageId 7317/7318/7320/7324/7326/7328 etc.) 多次 render `[e~[`
+    - **Trace evidence** (`/tmp/openclaw/openclaw-2026-07-11.log`):
+      - provider = `minimax` api=`anthropic-messages` model=`MiniMax-M3` contentType=`text/event-stream; charset=utf-8`
+      - Telegram outbound `sendMessage` `chunkCount=1` status ok — 表示 runtime 已 send 字串嘅完整版本
+      - grep source / heredoc / Python: 0 hit `[e~[`
+      - SSE event-stream delimiter boundary 漏咗 4 chars 出嚟，pattern = `[`, `e`, `~`, `[` (ASCII)
+    - **結論**：OpenClaw runtime 將 anthropic SSE stream 嘅 raw bytes 打包入 TG reply 嘅 last partial chunk 時，stream 收尾 partial frame 嘅 4 bytes 被視作 message content，附加到 reply
+    - **解法**：
+      - (a) **唔留 hanging 半句**, 避免 stream 被中途截斷
+      - (b) reply 結尾 add explicit 「EOF」或 newline（減少 stream truncation boundary）
+      - (c) short reply (≤2000 字, 唔過 4096 Telegram message limit) — limit stream chunks 數量
+      - (d) open OpenClaw runtime ticket / issue 將 個 byte-trimming bug patch
+    - **User 明確 feedback** (#7321 「**盡量唔好再出現 [e~[**」) — 我 decide優先用 (a)+(b)+(c)：每次 ending 都乾淨收，多 round message verify
+    - MEMORY 每次新 session recall 即 fixed
     - 「technical claim 要以 真· command + 真· output 為證」。 MEMORY 寫過嘅 prediction 唔等於 fact。
     - Default action hierarchy: 真· endpoint (5-30 sec cheap) > --dry-run / syntax-only (limit debug use only)
     - User 拍 URL 嚟 = 「真· user-facing test request」, 必須實 retry 先 reply

@@ -55,7 +55,7 @@ Skills are shared. Your setup is yours. Keeping them apart means you can update 
 ### SSH Keys
 - `~/.ssh/zeabur_key` — **已安裝**（2026-07-05），用於 ZO / Oracle 連接
   - 指紋：`zeabur-backup`（ssh-ed25519）
-  - ⚠️ 此 key 可連 ZO，但 Oracle (`129.80.234.56`) 目前 timeout，IP 可能已變或 VM 關閉
+  - ⚠️ `129.80.234.56` 已廢棄（見 TOOLS.md SSH section），現時 Oracle IP 係 `161.118.247.199`
 - ZO VM 已授權 `openclaw-zo` public key（可能與 `zeabur_key` 不同）
 
 ### SSH 快速指令
@@ -66,8 +66,9 @@ ssh -p 10661 -i ~/.ssh/zeabur_key root@ts8.zocomputer.io
 # Oracle → Zeabur
 ssh -i ~/.ssh/zeabur_key ubuntu@43.156.247.30
 
-# ZO → Oracle
-ssh -i ~/.ssh/zeabur_key opc@129.80.234.56
+# ZO → Oracle（用 zeabur_key）
+ssh -i ~/.ssh/zeabur_key opc@161.118.247.199
+# 或用 config alias：ssh oracle-new
 ```
 
 ### Hostname 對照
@@ -79,9 +80,9 @@ ssh -i ~/.ssh/zeabur_key opc@129.80.234.56
 
 ---
 
-## Vision / 睇圖 Model（2026-07-03 設定）
-- **Default:** `zhi-api/kimi-k2.6`（config key: `agents.defaults.imageModel.primary`）
-- **原因:** 實測 zhi-api 上可用 vision model 中，Kimi K2.6 中文 encoding 診斷最強
+## Vision / 睇圖 Model（2026-07-11 更新）
+- **Default:** `kimi-code/k2p6`（已取代已死嘅 kimi-k2.6）
+- **原因:** Kimi K2.6 中文 encoding 診斷最強，2026-07-11 確認有效
 - **Fallback:** claude-opus-4-7（zhi-api），更適合需要深度推理嘅圖像分析
 - **不可用:** deepseek-v4-pro（reject image_url）、gpt-5（503 no channel）
 - **生效範圍:** 所有 TG bot，`image` tool 自動使用，唔需要手動指定 model

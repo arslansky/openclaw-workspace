@@ -40,3 +40,64 @@ curl -s "https://api.telegram.org/bot8205470881:AAG9eXIKbqkpyC.../getMe"
 
 ### 教訓
 > **省略 token 係俾人睇嘅，唔係俾機器用嘅。** 測試 API 前，先從 config 拎完整版本。
+
+---
+
+## 2026-07-02｜SSH Key 方向性問題
+
+### 錯誤
+從 Zeabur VM SSH 到 Oracle VM，嘗試用 `~/.ssh/id_ed25519_zo_new`（Oracle VM 上嘅 key），但呢個 key唔存在於 Zeabur VM。
+
+### 根因
+SSH key 係**有方向性**嘅——連接方需要自己嘅 private key，呢個 key 必須喺**被連接方**嘅 `authorized_keys` 入面。
+
+### 正確做法
+```bash
+# 被連接方（Oracle）嘅 authorized_keys 必須有連接方（Zeabur）嘅 public key
+# 從被連接方角度看：
+# - Oracle 的 authorized_keys 裏有「Zeabur VM 的 public key」→ Zeabur 可連 Oracle
+# 從連接方角度看：
+# - Zeabur VM 執行 ssh，需要用自己嘅 private key（~/.ssh/zeabur_key）
+
+# ✅ 從 Zeabur 連 Oracle
+ssh -i ~/.ssh/zeabur_key opc@161.118.247.199
+
+# ✅ 用 SSH config alias
+ssh oracle-new  # (alias → 161.118.247.199, key: temp_opc_key 或 zeabur_key)
+```
+
+### 現有 SSH Keys 清理
+| Key | 用途 |
+|---|---|
+| `zeabur_key` | 連 ZO VM + Oracle VM |
+| `oracle_vm_new` | 舊 Oracle key，IP 已廢棄 |
+| `id_ed25519_zo` | ZO VM 專用 |
+| `temp_opc_key` | 新 Oracle IP（161.118.247.199）專用 |
+
+### 防止再犯
+> SSH 連接係「client 用自己嘅 key，去 server 嘅 authorized_keys 入面驗證」——搞清邊個係 client、邊個係 server。
+
+---
+
+## 2026-07-03｜Telegram Duplicate Token 導致 Bot 全線崩潰
+
+### 錯誤
+`channels.telegram.accounts.default` 同 `accounts.arslansky` 用咗**同一段 bot token**。
+
+### 根因
+OpenClaw Telegram plugin 初始化時 detect 到 duplicate token → `default` account fail → 成個 Telegram channel 變 `"not configured"` → 所有 incoming updates 唔被分發。
+
+### 正確做法
+1. `openclaw gateway call health` → 睇 `configured` 同 `lastError`
+2. 對比所有 accounts 嘅 botToken：`cat openclaw.json | jq '.channels.telegram.accounts'`
+3. 如果有 duplicate → 刪除多餘 account → restart gateway
+4. 驗證：`curl -s "https://api.telegram.org/bot<TOKEN>/getMe"`
+
+### 關鍵 lesson
+- `connected: true` 唔代表 channel work → 要睇 `configured` 同 `lastError`
+- `can_read_all_group_messages: true` 唔代表即刻收到 → 要有人 send message 先 trigger
+- 兩個 OpenClaw instances 同一 token → 爭 updates
+
+### 防止再犯
+> 每次加新 bot account 前，先確認 token 唔喺其他 account 用緊。
+> **省略 token 係俾人睇嘅，唔係俾機器用嘅。** 測試 API 前，先從 config 拎完整版本。

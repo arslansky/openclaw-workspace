@@ -2,3 +2,6 @@
 {"script": "news_summary.sh", "task": "daily-tech-news", "timestamp": "2026-07-11T06:00:00", "success": true, "duration_sec": 28, "tools_used": ["web_fetch"], "result": "ok"}
 {"script": "news_fetch.sh", "task": "morning-briefing", "timestamp": "2026-07-11T06:15:00", "success": true, "duration_sec": 12, "tools_used": ["web_fetch"], "result": "ok"}
 {"script": "toolbox-sync", "task": "daily-sync", "timestamp": "2026-07-11T04:00:00", "success": true, "duration_sec": 62, "tools_used": ["git-pull"], "result": "ok", "note": "first attempt timeout, second success"}
+{"action": "add_model_registry", "task": "整理所有 provider + model 一覽", "success": true, "files": ["model-registry-2026-07-11.md", "overrides.json"], "note": "registry v1, overrides v2 (OVR-004)"}
+{"action": "add_kimi_code_provider", "task": "加 kimi-code/k2p6 入 openclaw.json 做 vision model", "success": true, "config_changed": "openclaw.json", "backup": "openclaw.json.bak.20260711", "note": "OVR-002 resolved"}
+{"action": "update_memory_override", "task": "更新 MEMORY.md Custom Overrides section + overrides.json", "success": true, "note": "OVR-002 deprecated, OVR-004 added"}

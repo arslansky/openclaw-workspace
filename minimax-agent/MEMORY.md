@@ -15,8 +15,12 @@
 |---|------|------|-------|--------|
 | 01 | mojibake-round-trip | 2026-07-11 | Telegram iOS Markdown preview parser fail | text/markdown MIME 不可靠, default 用 PDF |
 | 02 | hooks-build-bugs | 2026-07-10 | 3 bash bugs in pre_compact_snapshot.sh | awk pipe buffer / dirname 嵌套 / 設計缺陷 document |
+| 03 | text-markdown-mime-repeat | 2026-07-11 | 重複違反 rule 16 (outbound index.md text/markdown) | pre-send mime audit + safe_send_markdown.py wrapper |
 
 **完整 list**: 見各 daily memory folder 嘅 `debug-cases/README.md`
+
+**Session reflections**:
+- 2026-07-11: [learnable-insights-2026-07-11.pdf](./memory/2026-07-11/learnable-insights-2026-07-11.pdf) — 8 sections 包括 outbound MIME rule, YT transcript pipeline 5-step, debug case methodology, PDF pattern, MEMORY architecture, self-reflection, permanent assets, future improvements
 
 ---
 
@@ -35,17 +39,59 @@
 - **唔好交波畀用戶** — 用戶畀咗 prompt 我就要用，唔好叫人 paste
 - **唔好「冇辦法就 over」** — 試 4-5 個 method 先講冇辦法
 - **每次新 session 第一時間 recall MEMORY.md** — 唔好由零開始
-- **🔴 嚴禁 Telegram outbound 用 box-drawing chars** (用戶 #7406)
-  - 唔好用 ╔═╗║╠╣╦╩╬ / ┌┐└┘├┤┬┴┼ 等 U+2500-259F
-  - iPhone Telegram client render 時 fallback 出 ? 或 ?
-  - 視覺分隔改用 ASCII: `===` `---` `***` `+++`
-  - 仍可用嘅安全 char: `→` `✓` `•` `●` `▶` `→` (U+2192 / U+2713 / U+2022 / U+25CF / U+25B6, 全部 Apple+Android 預設 font 認)
-  - File content 唔受影響 (都係普通 CJK+ASCII), 純 outbound message 限制
-- **🔴 Default outbound file MIME = `application/pdf` 或 `text/plain`, 唔好 `text/markdown`** (用戶 #7418 + #7420)
-  - text/markdown MIME 喺 iPhone TG client QuickLook Markdown preview parser fail, 繁中 + markdown control chars trigger font substitution
-  - PDF (Quartz native render) + TXT (raw display) 完全 bypass parser, 兩個都 100% reliable
-  - **Apply 範圍: ALL Telegram outbound file delivery**, 唔只 transcript (用戶 #7420 明令「apply 呢個嘢係 openclaw 全部 TG」)
-  - Workflow: long content → markdown source file 永久存底 + render PDF + send `application/pdf`
+- **🔴 Outbound delivery** (用戶 #7406, #7418, #7420, #7465) [modified 2026-07-11]
+  - **3 sub-rules merge 落 single mega-rule:**
+    1. **No box-drawing chars** (rule 14) — 唔好用 ╔═╗║╠╣╦╩╬ / ┌┐└┘├┤┬┴┼ 等 U+2500-259F, iPhone TG client render fallback 出 ?。 視覺分隔改 ASCII: `===` `---` `***` `+++`。 安全 char: `→` `✓` `•` `●` `▶` (U+2192/2713/2022/25CF/25B6)。
+    2. **Default file MIME = pdf/txt only** (rule 16) — text/markdown MIME 喺 iPhone QuickLook preview parser fail, 繁中 + markdown control chars trigger font substitution。 PDF + TXT 100% reliable。
+    3. **No inline 4-paragraph dumps** (rule 15) — 長編一律 file delivery, 唔好 4 段 inline message dump。
+  - **Workflow**: markdown source file 永久存底 + render PDF + send `application/pdf`。
+  - **Apply 範圍: ALL Telegram outbound** (唔只 transcript)。
+  - **🔺 Repeat violation warning** (#7465「要鬧了」): outbound #7463 (send index.md text/markdown) 我自己違反 own rule。 I MUST 自帶 **pre-send mime audit**。
+  - **✅ System-level fix (Option C applied)**: `safe_send_markdown.py` script @ `memory/2026-07-11/yt-transcripts/scripts/safe_send_markdown.py` provides automatic markdown → PDF (+ TXT fallback) conversion. Default: `python3 safe_send_markdown.py <file.md>` → send `media=<file>.pdf`. Audit log @ `debug-cases/_audit/safe_send_markdown.jsonl`.
+
+- **🔴 YT 英文 auto-caption 必須 dedupe consecutive dup lines** (用戶 #7438) [modified 2026-07-11]
+  - YouTube 英文 auto-caption VTT format 用 **rolling window pattern** — 每段台詞出 3 次 (句首 / 句中 / 句尾 boundary)
+  - 之前我 strip `<c>` + `<HH:MM:SS.mmm>` tags 之後, 文字本身一樣, 結果 730 lines 入面 66.6% 重複
+  - Fix: collapse consecutive identical lines → 1 (ka_WCmNdybE: 730→244 lines, 28KB→9.4KB)
+  - 中文字幕 (YT zh-Hans/zh-Hant) 唔受影響, 單行 non-rolling
+  - 之後英文 transcript 預設 dedupe; yt-subs dispatcher 加返呢個 step
+  - **YouTube transcript delivery 規范** (用戶 #7441):
+    1. **第一份 .txt**: 保留**開始時間** (only), deduped (`[HH:MM:SS.mmm] text`) — **不要同時顯示 end time** (用戶 #7446 嫌冗長)
+    2. **第二份 .txt** (optional): 純文字, deduped, no timestamp (方便讀)
+    3. **永遠保留 .vtt**: raw 原始檔, 永久 backup (end time 資訊存 VTT 入面)
+    4. 順序 send 時 first = timed (用戶參考時間軸用), second = clean (閱讀用)
+  - **🔴 YT transcript → 中文 PDF summary 為 default** (用戶 #7458 明令「之後唔駛我掂」)
+    - 用戶 send YouTube URL → default pipeline: 攞 transcript (timed+clean) → **自動 distill + render 中文 PDF summary** → send file delivery
+    - 唔再等用戶 explicitly confirm 「做 PDF」
+    - 中文 PDF 沿用 `zh-pdf-template.py` style (繁體, cover / TOC / divider / 4 種 callout / 表格 / takeaway, 無 emoji logos)
+    - 71+ 分鐘 long video 用 cover page + sections, distillation 注意 STT 錯字 caveats (whisper base 中文有限制)
+  - **🔴 yt-transcripts folder 統一管理** (用戶 #7461 明令「归納 統一處理 存放 有記錄 可追溯」)
+    - Folder structure: `memory/<YYYY-MM-DD>/yt-transcripts/<videoID>/` (每條影片一個 subfolder)
+    - Files: `<videoID>.timed.<lang>.txt` + `<videoID>.<lang>.txt` + `<videoID>.summary.zh-Hans.pdf` + raw (`.vtt`/`.whisper.json`/`.wav`)
+    - Scripts 統一放 `yt-transcripts/scripts/` subfolder
+    - 每處理完一條新影片, **必須 append row 落 `yt-transcripts/index.md`** (index.md + README.md 永久)
+    - 永久保留 transcript / summary files (永久 audit trail); `.wav` 預設 3 個月 cleanup (raw STT json 永久)
+    - Naming convention 嚴格遵守: `<videoID>.<lang>.{txt,timed.txt,vtt,whisper.json,wav,pdf}`
+- **🔴 Net-zero policy (system growth budget)** (用戶 #7486-#7489「會唔會越加越長」「諗吓點可以解決日加長既問題」)
+  - **核心**: 每加一個新 artifact (rule / case / script / doc) → 必須 retire / consolidate 至少一個 existing 同impact artifact。
+  - **Lighthouse check** (add new artifact 前必答): "What specific failure 呢個 prevents?" — 答唔出即 reject。
+  - **Inventory audit (凍結合規)**: 每個 category 維持一個 entry per pattern，唔加 noise scripts / 唔加 dead rules。
+  - **Examples**:
+    - Add new PDF render script → 必須 retire 1 個舊 PDF render script。
+    - Add case-04 → 必須先 merge case-01+03 (兩者都係同一 issue) 為 single case。
+    - Add new rule 17 → 必須 retire 1 個舊 rule 或 merge 入 mega-rule。
+  - **Audit 2026-07-11**: 已 archive 3 noise scripts (`gen_summary_pdf.py`, `gen_summary_pdf_v2.py`, `ka_summary_pdf.py`) → `scripts/_archive/`。 -62KB noise 移除。
+
+- **🔴 Explain format: 背景 / 經過 / 影響 / 要做乜 / 選項** (用戶 #7505 明令「剛才啲問題背景、影響、要做乜、選項呢種表達幾好, 日後都可以咁用, 記住」)
+ (用戶 #7505 明令「剛才啲問題背景、影響、要做乜、選項呢種表達幾好, 日後都可以咁用, 記住」) [modified 2026-07-11]
+  - 每次 complex decision / 多 round 包会都依這個 5-section format:
+    1. **背景** (1 句): 當時 evidence-context
+    2. **經過** (3 句以內): chronological key events
+    3. **影響** (具體 numeric/data): 量化 impact
+    4. **要做乜** (1 keyword reply-friendly): user 議程表
+    5. **選項** (A/B/C/D/all/none): simple decision matrix
+  - 避免抽象 jargon + multi-paragraph lecture
+  - 呢個 format user approve 後 — 永久 default 之後複雜 topic / debug discussion / multi-step decisions 都用同一個 template
 - **🔴 長字幕 / 長編內容一律 TXT file delivery**（用戶 #7384 明令）
   - 唔好 inline 4 段 dump
   - 流程：clean text → copy to `~/memory/<YYYY-MM-DD>/yt-transcripts/<videoID>.<lang>.txt` (workspace allowlist) → `message` tool `action=send` + `media=` + `caption=`

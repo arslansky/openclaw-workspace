@@ -104,6 +104,23 @@ Add whatever helps you do your job. This is your cheat sheet.
 
 ---
 
+## Telegram Bot Token 驗證（重要教訓）
+
+**千祈唔好用省略格式嘅 token 測試 API！**
+
+省略 token（如 `820547…xmgE`）係俾人睇嘅，唔係俾 API 用嘅。
+
+**正確做法：**
+```bash
+# 永遠從 openclaw.json 拎完整 token
+TOKEN=$(cat ~/.openclaw/openclaw.json | jq -r '.channels.telegram.accounts.zo.botToken')
+curl -s "https://api.telegram.org/bot${TOKEN}/getMe"
+```
+
+詳見：`memory/SYSTEM-LESSONS.md`
+
+---
+
 ## Telegram / OpenClaw 疑難排解
 
 ### arslanskybot 無反應 - Debug Checklist

@@ -34,3 +34,8 @@
 - 禁止：只寫「OK」或空白，必須有起碼 task description
 - 工具：`memory/tool-log.jsonl`（JSONL 格式，行追加）
 - 每週六 inbox review 時 → 順便做一次 tool-playbook.md 更新
+
+## 7. Ops Log Safety Net（每次 heartbeat）
+- 檢查 `memory/ops/` 有冇今日嘅 file（`YYYY-MM-DD.md`）
+- 如果今日做過操作（mv / rm / cp / config change）但冇 ops log → 報告「可能漏咗記錄操作」
+- 如果今日冇做任何操作 → 正常，skip

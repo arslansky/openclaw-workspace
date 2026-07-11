@@ -1,0 +1,57 @@
+{
+  "version": "v2",
+  "updated": "2026-07-11",
+  "description": "記錄所有 intentional custom override — config 同 reality 唔一致但係有原因嘅",
+  "note": "Audit 時見到呢啲 override 要 report，但標明 intentional，唔係 drift",
+  "overrides": [
+    {
+      "id": "OVR-001",
+      "target": "openclaw.json → agents.defaults.imageModel.primary",
+      "config_value": "minimax/image-01",
+      "actual_value": "gpt-image-2 (via scripts/smart_image_gen.sh)",
+      "reason": "用戶 Arslan 堅持用 gpt-image-2，效果遠好過 minimax/image-01",
+      "created": "2026-07-11",
+      "status": "active",
+      "last_verified": "2026-07-11",
+      "verified_by": "Arslan"
+    },
+    {
+      "id": "OVR-002",
+      "target": "openclaw.json → agents.defaults.imageModel.primary (vision)",
+      "config_value": "minimax/image-01",
+      "actual_value": "kimi-k2.6 (zhi-api) — 502 dead",
+      "reason": "Vision model 已死，未有替代。Kimi K2.6 之前係唯一可用 vision model",
+      "created": "2026-07-11",
+      "status": "deprecated",
+      "last_verified": "2026-07-11",
+      "verified_by": "Arslan",
+      "blocker": "需要搵新 vision model 替代（Claude Opus 4? GPT-5?）",
+      "resolved_date": "2026-07-11",
+      "resolved_reason": "改用 kimi-code/k2p6 做 vision model（2026-07-11 加落 config）",
+      "note": "Kimi k2p6 vision 已證實 work，用 Anthropic 格式"
+    },
+    {
+      "id": "OVR-003",
+      "target": "openclaw.json → agents.defaults.model.primary (ds-agent)",
+      "config_value": "yuanyuaicloud/deepseek-v4-pro",
+      "actual_value": "deepseek-v4-pro (ttk provider)",
+      "reason": "ttk provider 有 deepseek-v4-pro 同 ds-v4-flash，yuanyuaicloud 只有 v4-pro。多一個 provider 做 failover",
+      "created": "2026-07-11",
+      "status": "active",
+      "last_verified": "2026-07-11",
+      "verified_by": "Arslan"
+    },
+    {
+      "id": "OVR-004",
+      "target": "openclaw.json → agents.defaults.model.fallbacks",
+      "config_value": "[\"yuanyuaicloud/deepseek-v4-pro\"]（只有一級 fallback）",
+      "actual_value": "建議完整 chain：M2.7 → M3 → V4 Pro(yuanyuaicloud) → V4 Pro(ttk) → GPT 5.5",
+      "reason": "Failover 不足，只有 ds-agent 有 fallback。建議 chain 已記錄喺 model-registry.md",
+      "created": "2026-07-11",
+      "status": "active",
+      "last_verified": "2026-07-11",
+      "verified_by": "Arslan",
+      "note": "目前係建議，未改 config。要完整實作需要改 openclaw.json"
+    }
+  ]
+}

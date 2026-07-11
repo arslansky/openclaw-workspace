@@ -5,6 +5,21 @@
 
 ---
 
+## 🐛 Debug Cases Index
+
+> **Folder**: `memory/<YYYY-MM-DD>/debug-cases/`
+> **Naming**: `case-NN-<slug>.{md,pdf}`
+> **Policy**: 任何 debug case-worthy issue 都要提煉成獨立 case, 唔好散落 daily log
+
+| # | Slug | Date | Title | Lesson |
+|---|------|------|-------|--------|
+| 01 | mojibake-round-trip | 2026-07-11 | Telegram iOS Markdown preview parser fail | text/markdown MIME 不可靠, default 用 PDF |
+| 02 | hooks-build-bugs | 2026-07-10 | 3 bash bugs in pre_compact_snapshot.sh | awk pipe buffer / dirname 嵌套 / 設計缺陷 document |
+
+**完整 list**: 見各 daily memory folder 嘅 `debug-cases/README.md`
+
+---
+
 ## 🦞 重要用戶資料
 
 ### Owner: Arslan (Telegram)
@@ -20,6 +35,20 @@
 - **唔好交波畀用戶** — 用戶畀咗 prompt 我就要用，唔好叫人 paste
 - **唔好「冇辦法就 over」** — 試 4-5 個 method 先講冇辦法
 - **每次新 session 第一時間 recall MEMORY.md** — 唔好由零開始
+- **🔴 嚴禁 Telegram outbound 用 box-drawing chars** (用戶 #7406)
+  - 唔好用 ╔═╗║╠╣╦╩╬ / ┌┐└┘├┤┬┴┼ 等 U+2500-259F
+  - iPhone Telegram client render 時 fallback 出 ? 或 ?
+  - 視覺分隔改用 ASCII: `===` `---` `***` `+++`
+  - 仍可用嘅安全 char: `→` `✓` `•` `●` `▶` `→` (U+2192 / U+2713 / U+2022 / U+25CF / U+25B6, 全部 Apple+Android 預設 font 認)
+  - File content 唔受影響 (都係普通 CJK+ASCII), 純 outbound message 限制
+- **🔴 Default outbound file MIME = `application/pdf` 或 `text/plain`, 唔好 `text/markdown`** (用戶 #7418 + #7420)
+  - text/markdown MIME 喺 iPhone TG client QuickLook Markdown preview parser fail, 繁中 + markdown control chars trigger font substitution
+  - PDF (Quartz native render) + TXT (raw display) 完全 bypass parser, 兩個都 100% reliable
+  - **Apply 範圍: ALL Telegram outbound file delivery**, 唔只 transcript (用戶 #7420 明令「apply 呢個嘢係 openclaw 全部 TG」)
+  - Workflow: long content → markdown source file 永久存底 + render PDF + send `application/pdf`
+- **🔴 長字幕 / 長編內容一律 TXT file delivery**（用戶 #7384 明令）
+  - 唔好 inline 4 段 dump
+  - 流程：clean text → copy to `~/memory/<YYYY-MM-DD>/yt-transcripts/<videoID>.<lang>.txt` (workspace allowlist) → `message` tool `action=send` + `media=` + `caption=`
 
 ---
 
@@ -232,6 +261,31 @@ export http_proxy="http://utl:mhd@s4.hk38.ltip.xyz:20105"
 export https_proxy="http://utl:mhd@s4.hk38.ltip.xyz:20105"
 unset http_proxy https_proxy
 ```
+
+---
+
+## 🎨 Fable 5 Prompting Rules（insight-006）
+
+**Source**: YouTube - How Anthropic Engineers Actually Prompt Fable 5 (Nate Herk), 2026-07-06
+**Obsidian**: `~/obsidian/knowledge/01-Atomic/insight-006_fable-5-prompting-rules-2026-07-06.md`
+**Prompt-Archive**: `~/obsidian/knowledge/Prompt-Archive/Fable-5-Prompting-Rules.md`
+
+**⚠️ SCOPE GUARDRAIL (2026-07-11 #7356 user explicit)**：Fable 5 rules 設計對象係 Anthropic Fable 5 model 嘅 Anthropic team usage pattern。**唔好當 universal prompting rule 套落一般 LLM work**。
+
+具體嚟講：
+- ✅ 套用：當 user 用 Fable 5 / Claude Opus 寫 email、寫文、做 narrative work、creative task 時
+- ❌ 唔套：coding、debugging、system design、technical explanation、research analysis、data work
+- ⚠️ Rule 5 (唔好叫佢解釋思維) 嘅「悄悄 routing 去 Opus」效應，係 Fable 5 safety guardrail 行為 — 其他 model 唔適用
+
+**6 rules cheatsheet**:
+1. **Give it the WHY** — 唔淨只講要做咩，要解釋 intent
+2. **Negative prompt** — 講明「唔好做乜」，AI 容易 over-extend
+3. **唔好 over-plan** — 有足夠資訊就 act，"When you have enough information to act, then act"
+4. **Make it prove it** — 「Before you tell me done, point to the result that proves it」
+5. **唔好叫佢 explain reasoning** — Fable 5 會悄悄 routing 去 Opus (safety)
+6. **話少啲，唔好話多** — Fable 夠聰明，短指示已經有效
+
+**When in doubt**: 唔好自動 apply。等 user/task context 明顯係 Fable 5 / creative writing 先 trigger。
 
 ---
 

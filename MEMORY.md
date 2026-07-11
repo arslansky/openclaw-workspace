@@ -90,13 +90,15 @@ Asian woman portrait, delicate porcelain skin, short black-brown hair with subtl
 | `arslansky` | `8688406477` | @arslanskybot | Kimi Boy |
 | `janzaibot` | `8302835438` | @Janzaibot | Big VM |
 | `know2learn` | `8401590390` | @Know2learn_bot | 知識庫熔爐 |
-| `zo` | **待加入** | **待加入** | **ZO Computer Bot** |
+| `zo` | `8205470881` | @ZO_001_bot | **Last Guardian 2** |
+| `ds` | `8523709022` | @DS_26bot | Deepseekbot |
 
 ### 用途
 - `arslansky` — 主要私人對話
-- `janzaibot` — 用途待確認
+- `janzaibot` — Big VM bot（用途待確認）
 - `know2learn` — **知識庫 bot**，inbox capture + 知識沉澱
-- `zo` — **ZO Computer bot**（新開，尚未配置）
+- `zo` — **Last Guardian 2**（ZO Computer VM 配套 bot）
+- `ds` — **Deepseekbot**（用途待確認）
 
 ### Group ID 對照
 
@@ -172,6 +174,65 @@ inbox: [任何嘢]
 | **Oracle VM** | `161.118.247.199` | `opc` | 22 | `~/.ssh/zeabur_key` | ✅ |
 | **Zeabur VM** | `43.156.247.30` | `ubuntu` | 22 | Password / SSH key | ✅（呢部係我哋目前嘅 Gateway）|
 | **ZO VM** | `ts8.zocomputer.io` (`150.136.143.138`) | `root` | 10661 | `~/.ssh/zeabur_key` | ✅ |
+
+## ACE Feedback Loop（2026-07-11 追加）
+
+**每個 script/tool 執行完必須寫 log：**
+```bash
+# 追加格式（JSONL）
+echo '{"script": "...", "task": "...", "success": true, "duration_sec": N, "note": "..."}' >> memory/tool-log.jsonl
+```
+- **禁止空白**——起碼要有 task description
+- **臨時日誌：** `memory/tool-log.jsonl`
+- **每週六：** inbox review 時同步更新 `memory/tool-playbook.md`
+
+---
+
+## TRAP 雙層規劃（2026-07-11 追加）
+
+**所有複雜任務** → 建立 `memory/tasks/active/<task-id>/`
+
+```
+memory/tasks/
+├── _registry.md          # 任務總表（TRAP-style）
+├── active/
+│   └── <task-id>/
+│       ├── _plan.md      # Abstract Plan（高層目標）
+│       └── _subtasks.md  # Field-mapped subtasks
+└── completed/            # 完成歸檔
+```
+
+**操作流程：**
+1. 複雜任務進來 → 建立 task-id folder
+2. 寫 `_plan.md`（高層 Abstract Plan + phase map）
+3. 寫 `_subtasks.md`（每 phase checklist，field-mapped）
+4. 完成 → 移動去 `completed/`，更新 `_registry.md`
+5. **任何 blocker 出現** → 立即寫入 `phase_N_blocker`，及時上報
+
+**失敗模式分類（每個失敗必須標記）：**
+- `myopic` — 逐步最優但整體唔優
+- `plan_drift` — 做到一半偏離原本目標
+- `short_term_bias` — 細節靚但宏觀走咗
+- `other` — 其他原因
+
+---
+
+## SICA 落地應用（2026-07-11 追加）
+
+**每次任務失敗** → 建立呢個循環：
+```
+reasoning_agent（我）→ 分析邊個 tool/script 失敗
+    ↓
+coding_agent（我）→ edit scripts（加 fallback / log / retry）
+    ↓
+tool-log.jsonl → 記錄 failure pattern
+    ↓
+下次執行 → 驗證修復是否有效
+```
+
+**長期目標：** 逐步自動化，最終做到「系統自己識得優化自己」
+
+---
 
 ### SSH 快速指令
 ```bash
@@ -309,4 +370,43 @@ hermes-backup/
 
 ### 更新記錄
 - 2026-07-10：初始化框架
+
+---
+
+## 🔬 Harness Engineering 研究專題（2026-07-11）
+
+**主文件：** `~/obsidian/knowledge/02-Permanent/harness-engineering.md`
+
+### 目的
+集中管理所有 Harness Engineering 相關資料，形成可疊加累積嘅研究庫。
+
+### 目前進度
+- ✅ Lilian Weng《Recursive Self-Improvement》博客影片總結（YouTube z_F0z7wF5XU）已消化
+- ✅ 主研究 note 已創建：`02-Permanent/harness-engineering.md`
+
+### 核心標籤
+`#AI` `#Harness-Engineering` `#Agent` `#Self-Improvement` `#Research`
+
+### 搜尋口徑（關鍵詞）
+任何時候補充資料時，用以下關鍵詞搜索現有 vault：
+```
+harness / self-improv / recursive / agentic context
+SICA / ACE / TRAP / context engineer
+MCE / Meta-Harness / STOP / DGM / AlphaEvolve
+workflow* agent / self-harness / self-taugh
+```
+
+### 與顧問框架嘅關係
+在顧問分析框架 Step 5 中：
+> Big Model 派：Bitter Lesson — 計算係王
+> Big Harness 派：Production Reality — 真實部署細節
+
+Harness Engineering 研究 = 逐步建立「Big Harness 派」嘅完整知識底座。
+
+### 待整合（未來發現時更新）
+- [ ] Lilian Weng 原文博客
+- [ ] ACE / SICA 論文原文
+- [ ] DGM vs STOP 對比
+- [ ] MCE（Meta Context Engineering）
+- [ ] ADAS / AFlow 工作流搜索
 

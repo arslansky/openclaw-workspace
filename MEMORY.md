@@ -80,7 +80,7 @@ memory/tasks/
 |------|------|
 | Telegram Bots + Groups | `sources/reference/telegram-bots.md` |
 | VMs + SSH | `sources/reference/vm-connections.md` |
-| Knowledge Vault 結構 | `sources/reference/knowledge-vault.md` |
+| Knowledge Vault 結構 | `memory/` 或 project 內 — 按主題分類
 | Scripts 目錄 | `sources/reference/scripts-index.md` |
 | Harness Engineering 研究 | `02-Permanent/harness-engineering.md` |
 | English Learning Vocabulary | `05-English/02-Language-Lab/vocabulary/` |

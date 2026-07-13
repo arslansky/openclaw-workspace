@@ -101,3 +101,31 @@ OpenClaw Telegram plugin 初始化時 detect 到 duplicate token → `default` a
 ### 防止再犯
 > 每次加新 bot account 前，先確認 token 唔喺其他 account 用緊。
 > **省略 token 係俾人睇嘅，唔係俾機器用嘅。** 測試 API 前，先從 config 拎完整版本。
+
+---
+
+## 2026-07-13｜Image Generation Script API Drift
+
+### 錯誤
+多次生圖時繞過 `scripts/smart_image_gen.sh`，直接行 `image_generate` tool，導致用錯 API（Aetheracode 而非 Zhi）。
+
+### 根因
+1. image_generate tool 行 Aetheracode（default provider），唔係行 script
+2. 每次生圖時貪快 → 用 tool 直接生成 → Aetheracode 爆 balance 先發現
+3. script 早已 set 好 Zhi API，但從來唔係首選
+4. MEMORY.md OVR-001 只寫「via script」，冇寫明係邊個 API provider，斷層後無法追溯
+
+### 正確做法
+
+**✅ 標準流程：**
+```bash
+# 每次生圖前確認 API
+cat scripts/smart_image_gen.sh | grep -E "API_KEY|zhi-api"
+
+# 生圖永遠行 script
+bash scripts/smart_image_gen.sh "<prompt>" "<size>" "<quality>" "<model>"
+```
+
+**⚠️ 硬性規定（AGENTS.md）：**
+- 永遠行 script，唔准用 image_generate tool 直接生成
+- 生圖前必須確認 API endpoint 係 Zhi

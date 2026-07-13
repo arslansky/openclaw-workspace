@@ -32,7 +32,7 @@
 
 | ID | Config | Actual | Status |
 |----|--------|--------|--------|
-| OVR-001 | minimax/image-01 | gpt-image-2 via script | ✅ active |
+| OVR-001 | minimax/image-01 | **gpt-image-2 via Zhi API** (`sk-XFO…SAOC`, `https://zhi-api.com/v1`) | ✅ active |
 | OVR-002 | kimi-k2.6 (dead) | kimi-code/k2p6（2026-07-11 resolved）| ✅ resolved |
 | OVR-003 | 單 provider | yuanyuaicloud + ttk 雙 provider | ✅ active |
 

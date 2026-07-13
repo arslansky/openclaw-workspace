@@ -120,6 +120,21 @@ Reactions are lightweight social signals. Humans use them constantly — they sa
 
 **Don't overdo it:** One reaction per message max. Pick the one that fits best.
 
+## 🖼️ Image Generation — MANDATORY SCRIPT RULE
+
+**⚠️ 永遠用 `bash scripts/smart_image_gen.sh`，唔准用 `image_generate` tool 直接生成。**
+
+生圖前必須確認 API endpoint：
+```bash
+cat scripts/smart_image_gen.sh | grep -E "API_KEY|zhi-api"
+```
+
+流程：生圖 request → `bash scripts/smart_image_gen.sh` → 成功 → 回复圖片 link
+
+防止失效：MEMORY.md OVR-001 已記錄 Zhi API key，AGENTS.md 呢段係紀律層面硬性規定，唔准繞過。
+
+---
+
 ## Tools
 
 Skills provide your tools. When you need one, check its `SKILL.md`. Keep local notes (camera names, SSH details, voice preferences) in `TOOLS.md`.

@@ -16,6 +16,7 @@
 | 01 | mojibake-round-trip | 2026-07-11 | Telegram iOS Markdown preview parser fail | text/markdown MIME 不可靠, default 用 PDF |
 | 02 | hooks-build-bugs | 2026-07-10 | 3 bash bugs in pre_compact_snapshot.sh | awk pipe buffer / dirname 嵌套 / 設計缺陷 document |
 | 03 | text-markdown-mime-repeat | 2026-07-11 | 重複違反 rule 16 (outbound index.md text/markdown) | pre-send mime audit + safe_send_markdown.py wrapper |
+| 04 | minimax-agent-silent-4hr | 2026-07-12 → 07-13 | minimax-agent Silent 4hr (user-perceived 10.5hr outage) | session bridge deadlock + 14× tool-result-truncation + NO_REPLY 唔 announce = user panic |
 
 **完整 list**: 見各 daily memory folder 嘅 `debug-cases/README.md`
 
@@ -351,4 +352,24 @@ unset http_proxy https_proxy
 - Public proxy `s4.hk38.ltip.xyz:20105` 唔知 operator 身份，唔好用嚟過真密碼
 - Telegram authorized senders: `160408068` (owner)
 - Outbound message 唔好亂 send, 要 user 明確指示
+
+### 2026-07-13
+15. **🔴 Outbound media path 必須喺 OpenClaw workspace** (用戶 #7630, lesson from 5+ 小時 stuck recovery)
+    - `/home/ubuntu/memory/...` **唔喺** OpenClaw outbound allowlist → `OutboundDeliveryError: Local media path is not under an allowed directory`
+    - **Workaround**: copy 入 `/home/ubuntu/.openclaw/workspace/minimax-agent/memory/...` 先可以 send
+    - 或者直接放 workspace `/home/ubuntu/.openclaw/workspace/minimax-agent/...`
+    - MEMORY outbound rule 已經 require PDF/TXT, 但**路徑都必須係 workspace** — 否則 tool 拒絕送
+16. **🔴 Workspace wipe 已 confirmed** (2026-07-12 → 2026-07-13 only)
+    - 之前 reference 嘅 `~/memory/2026-07-11/yt-transcripts/scripts/*.py`, `safe_send_markdown.py` 全部唔見咗
+    - 只能由 workspace wipe 之前 commit 過嘅 MEMORY.md 拎回 context (which is current)
+    - **Lesson**: 自己寫嘅 script 必須 sync 入 workspace git, 或者 copy 落 `~/skills/` (用戶原位長期保留)
+17. **🔴 Noto CJK font 唔可以用 reportlab 直接 load** (2026-07-13 #7630 PDF 階段)
+    - `/usr/share/fonts/opentype/noto/NotoSansCJK-*.ttc` 係 CFF/PostScript
+    - reportlab error: `TTFont: postscript outlines are not supported`
+    - **Solution**: 用 built-in CID font `STSong-Light` (覆蓋全 CJK chars 包括繁中), or `/usr/share/fonts/truetype/wqy/wqy-microhei.ttc` (但 SKILL script 路徑寫錯)
+    - 直接 inline Python script render PDF, 唔靠 SKILL script
+18. **🔴 YT 短片 (< 5 min) zh-Hant/zh-Hans 容易撞 429** (2026-07-13 T3K9r3wDoO8)
+    - 同 session 短時間攞 en + zh-Hant → 後者 429
+    - 短片 en 完全足夠 — 中文 PDF summary 自己 distill 就 OK
+    - Workaround: sleep 60s retry, 或只用主語
 

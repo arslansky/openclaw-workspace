@@ -122,16 +122,16 @@ Reactions are lightweight social signals. Humans use them constantly — they sa
 
 ## 🖼️ Image Generation — MANDATORY SCRIPT RULE
 
-**⚠️ 永遠用 `bash scripts/smart_image_gen.sh`，唔准用 `image_generate` tool 直接生成。**
+**⚠️ 永遠用 `python3 scripts/smart_image_gen.py`，唔准用 `image_generate` tool 直接生成。**
 
-生圖前必須確認 API endpoint：
-```bash
-cat scripts/smart_image_gen.sh | grep -E "API_KEY|zhi-api"
-```
+流程：生圖 request → `python3 scripts/smart_image_gen.py <prompt> [size] [quality] [model] [ref_image]`
 
-流程：生圖 request → `bash scripts/smart_image_gen.sh` → 成功 → 回复圖片 link
+**Provider fallback（自動）：**
+1. Aetheracode primary（4次 retry）
+2. INSUFFICIENT_BALANCE / quota error → 即時轉 Zhi API
+3. 所有 retry 失敗 → 最後嘗試 Zhi API
 
-防止失效：MEMORY.md OVR-001 已記錄 Zhi API key，AGENTS.md 呢段係紀律層面硬性規定，唔准繞過。
+**防止失效：MEMORY.md OVR-001 已記錄 Zhi API key，呢段係紀律層面硬性規定，唔准繞過。**
 
 ---
 

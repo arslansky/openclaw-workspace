@@ -32,7 +32,7 @@
 
 | ID | Config | Actual | Status |
 |----|--------|--------|--------|
-| OVR-001 | minimax/image-01 | **gpt-image-2 via Zhi API** (`sk-XFO…SAOC`, `https://zhi-api.com/v1`) | ✅ active |
+| OVR-001 | minimax/image-01 | **gpt-image-2 via Zhi API** via `scripts/smart_image_gen.py` (Aetheracode primary → Zhi fallback) | ✅ active |
 | OVR-002 | kimi-k2.6 (dead) | kimi-code/k2p6（2026-07-11 resolved）| ✅ resolved |
 | OVR-003 | 單 provider | yuanyuaicloud + ttk 雙 provider | ✅ active |
 
@@ -74,6 +74,34 @@ memory/tasks/
 
 ---
 
+## 📚 English Learning - Vocab Check SOP
+
+**Trigger：** 用戶發 "vocab check" + 生字列表
+
+**Output Format：**
+```
+WORD /pronunciation/ · part of speech · **中文粗體**
+變化： verb形式（如適用）
+→ 例句①（真實語境）：English
+  （中文）
+→ 例句②：English generic
+  （中文）
+配合： collocations
+同義： synonyms（最強→最弱）
+⚠️ 注意： usage注意 / 陷阱 / 區分
+---
+```
+
+**規則：**
+- 例句① 必須用戶提供嘅真實語境，② 係 generic
+- 同義詞強度排序
+- 標明 register（formal/informal/slang）及及物/不及物
+- 每字後加 `---` 分隔
+
+**Template source：** `memory/2026-07-14.md`
+
+---
+
 ## 📎 Reference Links（用時先讀）
 
 | 主題 | 位置 |
@@ -88,4 +116,4 @@ memory/tasks/
 
 ---
 
-*最後更新：2026-07-12 · 精簡版，reference 已搬出*
+*最後更新：2026-07-14 · Vocab Check SOP 新增*

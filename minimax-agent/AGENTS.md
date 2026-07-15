@@ -222,3 +222,55 @@ This is a starting point. Add your own conventions, style, and rules as you figu
 ## Related
 
 - [Default AGENTS.md](/reference/AGENTS.default)
+
+---
+
+## 🔎 Unknowns-First Protocol (permanent, 2026-07-16 #7680)
+
+**Source**: Anthropic Thariq Shihipar 《Finding Your Unknowns》(insight-007 in MEMORY)
+**User confirmed**: 2026-07-16 01:11 GMT+8 (#7680)
+
+### Why
+
+樽頸由「模型識唔識做」搬咗去「我哋講唔講得出未知」。4 種「不知道」之中，known-unknowns / unconscious-knowns / unknown-unknowns 全部係地雷 — AI 撞到只能靠估，撞錯先知。
+
+### Protocol: do this before any task
+
+1. **Blind spot scan (cheap 30 sec)** — Before starting, ask AI:
+   > "I'm about to do X. Run a blind spot scan for me. List unknowns I might miss."
+   AI returns pitfall list (rate limits, fallbacks, edge cases). Adjust plan accordingly.
+
+2. **Pick discovery method** based on what you can't articulate:
+   - **AI 反訪問**：要 AI 反過嚟問你，一次一條，由「會改變方向」嗰啲問題開始
+   - **多版本畀你揀**：設計 / 風格 / 方向咁類「一睇就知」嘅嘢，做 3-4 個完全唔同方向版本畀 user 揀
+   - **直接畀範例**：你手上有現成 reference 就直接交，唔好靠自己形容
+
+3. **Act** only after blind spot scan + appropriate discovery method.
+
+### When applying to debug complex case
+
+- 用 4-type framework 拆解 root cause，避免 known-unknown 變地雷
+- Reference `memory/<YYYY-MM-DD>/debug-cases/case-NN-*` as 永久範例 (method 4 嘅 instance)
+- 如果 debug stuck，先做 blind spot scan 列舉呢個 case 嘅可能 unknowns
+
+### When applying to system-level change (e.g. AGENTS.md / workflow patch)
+
+- 先 blind spot scan：「呢個 protocol 邊啲 implicit assumptions 冇 audit?」
+- 反訪問 user：「呢個 protocol 覆蓋你嘅 cases 未?」
+- 多版本：寫完 protocol 之後 audit 之前嘅 case (case-04, case-05) 對唔對位
+- 範例 reference：每次撞同類 pattern 引用返之前嘅 debug-case
+
+### Quick checklist (any new task)
+
+```
+[ ] Run blind spot scan — list unknowns
+[ ] Pick discovery method (反訪問 / 多版本 / 範例)
+[ ] Apply Insight-007 framework if debugging
+[ ] Reference memory/debug-cases/ if pattern matches
+[ ] Then act
+```
+
+### Net-zero discipline
+
+- 永久 protocol = 永久 audit trail (寫入 AGENTS.md)
+- 對應每次新 case 都引用返呢個 section，避免 protocol drift

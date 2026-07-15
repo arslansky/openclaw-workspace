@@ -336,6 +336,56 @@ unset http_proxy https_proxy
 
 ---
 
+## 🗺️ Finding Your Unknowns（insight-007, 2026-07-15）
+
+**Source**: YouTube - Anthropic 大神的用 AI 心法（Paula 寶拉, 2026-07-12）
+**Original**: Thariq Shihipar 《Finding Your Unknowns》(Anthropic)
+**Full digest**: `memory/2026-07-15/yt-transcripts/_1IM9ZpmEWc/_1IM9ZpmEWc.summary.zh-Hant.pdf`
+
+**Core sentence**: 樽頸由「模型識唔識做」搬咗去「我講唔講得出我唔知嘅嘢」。
+
+**4 種「不知道」** (旅行社例子):
+- known-knowns → 入 prompt 就算
+- known-unknowns → 你知未決定，但一直拖
+- unconscious-knowns → 你視為理所當然，唔會講
+- unknown-unknowns → 你連聽都未聽過
+
+**4 個挖法**:
+1. **Blind spot scan** — 直接叫 AI：「Run a blind spot scan for me. Tell me the things I don't know I don't know.」
+2. **AI 反訪問** — 叫 AI 反過嚟訪問你，一次一條，由「會改變成個方向」嗰啲開始
+3. **幾個差好遠版本** — 你講唔出但一睇就知，畀 4 個完全唔同方向嘅版本你揀
+4. **直接畀範例** — 你手上有現成 example 就直接交，唔好靠自己形容
+
+**互補 Fable 5 (insight-006)**:
+- Fable 5 rule 1 (Give it the WHY) ↔ 旅行社例子（怕行路 = WHY）
+- Fable 5 rule 2 (Negative prompt) ↔ 方法三「幾個差好遠版本」排除方向
+- Fable 5 rule 3 (唔好 over-plan) ↔ 方法一 blind spot scan 用最 cheap step 偵察
+
+**套用範圍**：
+- ✅ User 撞 silent gap / multi-round conflict / 我哋自己答錯 — 應該用 blind spot scan prompt 自己問自己
+- ✅ User 開新 task — pipeline 開頭做一次 blind spot scan 確認所有 known-unknown 都挖出嚟
+- ✅ Debug complex case（case-04 等）— 用 4-type framework 拆解 root cause，避免 known-unknown 變地雷
+
+**Net-zero**: 已經寫入 yt-transcripts/index.md row 8 + topic cross-ref「Prompting patterns (Fable 5 + Unknowns)」。 PDF 同 script (`render_summary_pdf.py`) 永久保留。
+
+---
+
+## 🎨 PDF Summary Font Default (2026-07-16)
+
+**User decision** (#7668 reply): **Serif 為英文字體**
+
+- **default latin**: `DejaVuSerif` (TTF, embed-able, 學術 serif 風格)
+- **default cjk**: `STSong-Light` (CID, 全 CJK 覆蓋)
+- **rationale**: Helvetica 細字 (9-10.5pt) 瘦仔 reading 不舒服；iPhone QuickLook preview 對 Helvetica fallback render 差
+- **alternatives archive 咗**: DejaVuSans、Helvetica、MSung-Light（皆唪唥 render-script 可用）
+- **script**: `memory/2026-07-15/yt-transcripts/_1IM9ZpmEWc/scripts/render_summary_pdf.py`
+  - `DEFAULT_LATIN = "DejaVuSerif"`, `DEFAULT_CJK = "STSong-Light"`
+  - Usage: `python3 render_summary_pdf.py <out.pdf>` (one-arg use default)
+  - Override: `python3 render_summary_pdf.py <out.pdf> DejaVuSans MSung-Light`
+- **Apply scope**: 所有 future zh-Hant PDF summary（YT transcript 之外都適用）
+
+---
+
 ## 📂 重要文件位置
 - `~/repos/openhuman/` — OpenHuman clone (125MB)
 - `~/MEMORY.md` — 呢個 file
@@ -373,3 +423,131 @@ unset http_proxy https_proxy
     - 短片 en 完全足夠 — 中文 PDF summary 自己 distill 就 OK
     - Workaround: sleep 60s retry, 或只用主語
 
+
+### 2026-07-16
+19. **🔴 PDF 英文 default = Serif font** (用戶 #7668 明令)
+    - `render_summary_pdf.py` DEFAULT_LATIN = DejaVuSerif, DEFAULT_CJK = STSong-Light
+    - One-arg usage: `python3 render_summary_pdf.py <out.pdf>`
+    - 4 個 variant 永久 archive: A=Helvetica/B=DejaVuSans/C=DejaVuSerif/D=DejaVuSans+MSung
+    - Helvetica 細字 9-10.5pt reading 偏瘦 → 唔再 default
+20. **🔴 PDF CJK render — NEVER wrap CJK text in Latin TTF inline** (用戶 #7672 即時 feedback)
+    - DejaVuSerif / DejaVuSans / Helvetica 都係 Latin-only TTF
+    - `<font face="DejaVuSerif">繁中字</font>` 無論 inline 定 Table cell → render 空白 box (■■■■)
+    - **Solution**: ParagraphStyle.fontName 一律用 CID font (STSong-Light / MSung-Light)，CID 內部 fallback chain 自動處理 Latin chars
+    - Pure-Latin paragraph (English quote / prompt) 至用 Latin TTF，但要 `_has_cjk()` detect
+    - **Debug case**: `memory/2026-07-16/debug-cases/case-05-pdf-cjk-font-blank-boxes.md`
+    - **Verify routine**: re-render 後必 extract text，count `■■` + `<font` literal，必須 = 0
+
+### Skywork (Kunlun Wanwei 万仑万萬 / Kunlun Tech) — 2026-07-16 #6263
+
+**Quick ref**:
+- 內地 top LLM team (天工 / Skywork team)，2023-10 開源 Skywork-13B 起家
+- ~400M MOU，78% revenue overseas；港股上市
+- 多模路線: LLM + video gen + voice + reward model
+- User 2026-07-16 揀 D = reference only, no deploy, no paid
+
+**完整產品線**:
+
+| 產品 | 類型 | Size | 用途 | License / 收費 |
+|---|---|---|---|---|
+| `Skywork-OR1` | Reasoning LLM | 7B / 32B | math / code | open source (Apache-2.0) |
+| `Skywork-OR1-Math-7B` | Math reasoning | 7B | AIME 69.8 / 52.3 | open source |
+| `Skywork-13B` | Base / Chat / Math / MM | 13B | 通用 | open source (商用免申請) |
+| `Skywork-MoE` | 稀疏 MoE | ~146B active / 2T total | 大型推理 | open source (**需 8×4090**) |
+| `SkyReels-V3` | Video gen | multimodal | text-to-video | open source (2026-01) |
+| `Skyo` | Voice assistant | n/a | real-time voice | 商用 SaaS |
+| `Skywork-Reward-V2` | Reward model | 8B / 4B / 1.5B | RLHF / 評分 | open source |
+| `Skywork.ai workspace` | SaaS suite | n/a | doc / slide / code | $19.99/mo Individual, Enterprise custom |
+
+**Benchmark (未實測, web 引用)**:
+- `Skywork-OR1-32B`: AIME24 = **82.2**, AIME25 = **73.3**, LiveCodeBench (2024-08 ~ 2025-02) = **63.0** (超越 DeepSeek-R1 + Qwen3-32B in math)
+- `Skywork-OR1-Math-7B`: AIME24 = **69.8**, AIME25 = **52.3** (同 size 最強)
+- `Skywork-Reward-V2-Llama-3.1-8B`: RewardBench average **#1** (8 個 variant 都有出)
+- `Skywork-Reward-V2-Llama-3.1-8B-40M`: 26M preference pairs curated via human-LLM synergy pipeline
+- `Skywork-Reward-V2-Qwen3-4B`: 4B variant for resource-constrained
+
+**Self-host 硬件需求 (llama.cpp / vLLM)**:
+- 13B Q4_K_M: ~**8-10 GB VRAM** (消費級 RTX 4080/3090)
+- 7B Q4_K_M: ~**4-6 GB VRAM** (RTX 3060 都得)
+- 32B Q4_K_M: ~**20 GB VRAM** (RTX 4090)
+- 70B Q4_K_M: ~**42 GB VRAM** (1× A100 80G / 2× RTX 4090)
+- 8B reward model Q4: ~**5 GB VRAM**
+- vLLM PagedAttention: fragmentation 損耗可達 20-30%，要預 buffer
+- Tensor parallel (multi-GPU): PCIe bandwidth 限速，~0.7× scaling，48GB combined 解鎖 70B Q4
+
+**我哋部機 viability check** (2 cores + 7.4GB RAM, **冇 GPU**):
+- ❌ 全部 model 都需要 VRAM，我哋冇
+- ⚠️ **CPU-only inference** (llama.cpp CPU mode): 13B Q4 估 1-3 tok/s (極慢), 7B 估 3-8 tok/s
+- ⚠️ Memory swap 風險: 13B Q4 weights ~8GB, 加 KV cache + overhead 隨時 OOM
+- ⚠️ Inference 同網絡 IO 撞 RAM，會拖慢其他 process (yt-dlp / whisper / PDF render)
+- **Verdict**: **唔建議** self-host 喺我哋部機。用 VPS (RunPod / Vast.ai / Lambda Labs 1× RTX 4090 ~ $0.5/hr) 比較實際
+
+**API 接入 4 條路**:
+1. **Skywork 自家 API**: 直接註冊 `skywork.ai` developer account → API key
+   - 預估定價: 對標 Anthropic / OpenAI tier (individual 之外 enterprise custom)
+2. **APIFree.ai aggregator** (`apifree.ai`): OpenAI-compatible, single endpoint 接入 GPT / Claude / Gemini / Skywork 一齊
+   - 收費模型: "routing free, pay for features"; Hacker tier free forever (零 markup); Team $499/mo; Enterprise custom
+   - 用法: `pip install openai`, base_url 改 APIFree endpoint, 直接 OpenAI SDK call
+3. **本地自托管 llama.cpp**: 完全 free, 但要 GPU VPS
+4. **HuggingFace Inference API**: Skywork 全部 weights 上 HF，可付費用 HF Inference Endpoint
+
+**中港 access 限制** (potential pitfall):
+- 內地 model → 唔同 hosting 服務可能有 geo-block
+- 中國 IP 出 OpenAI/Anthropic 受限，我哋 s4.hk38.ltip.xyz proxy 已經驗證可過 YouTube，但唔知 APIFree / Skywork 端點
+- **Caveat**: 真正接入前先用 curl 試 endpoint reachability
+
+**Reference 用途** (per user #6263):
+- **Fallback reasoning layer**: 取代 blocked Gemini API (我哋 MEMORY lesson 已知 `API_KEY_SERVICE_BLOCKED`)
+- **Reward model audit**: Skywork-Reward-V2 plug 入 PDF / transcript quality scoring (我哋 PDF 質素目前靠 manual review, 8B reward model 可 automate 一致性 check)
+- **Video gen future**: SkyReels-V3 太重，但 reference 我哋 video pipeline 嘅 reference list
+- **教訓 reference**: Skywork-OR1 "RL for reasoning" 嘅 case study 可 reference 我哋未來 LLM-related debug
+
+**Sources** (untrusted, web snippets only, **未實測**):
+- https://github.com/SkyworkAI
+- https://github.com/SkyworkAI/Skywork-OR1
+- https://github.com/SkyworkAI/Skywork-Reward-V2
+- https://arxiv.org/html/2505.22312v1 (Skywork-OR1 technical report)
+- https://arxiv.org/pdf/2507.01352 (Skywork-Reward-V2 paper)
+- https://huggingface.co/Skywork (40+ models)
+- https://skywork.ai/skypage/en/skywork-ai-copilot-pricing-2026/2034521488383823872
+- https://news.aibase.com/news/25082 (SkyReels-V3 release)
+- https://www.apifree.ai/model/skywork-ai/skyclaw-v1?tab=api
+- https://localllm.in/blog/llamacpp-vram-requirements-for-local-llms (VRAM math)
+- https://www.sitepoint.com/vram-requirements-70b-models-16gb-gpu-minimum-2026/
+- https://localaimaster.com/blog/vram-requirements-2026
+
+**Net-zero**: 1 reference entry, 0 deploy, 0 paid commitment, 4 個 decision point (self-host / API / APIFree / HF Inference) 已 audit
+
+
+### 2026-07-16 (deep dive lesson)
+21. **🔴 慎用 multi-choice 反訪問 scope disambig** (user #6271 即時 reject)
+    - 之前 pattern: user 含糊 request → 我放 multi-choice button 問揀 scope
+    - 已被 reject 兩次 (#6271 「咩來 你想做乜」, 之前一次 "繼續繼續咩事咩事")
+    - **Lesson**: 當 user 講「多啲」、「詳細啲」、「全面啲」呢類**加 depth 嘅 request**，**直接做 E = 全部 deep dive**，唔好又問 scope
+    - **Trigger 條件**: 
+      - ✅ 反訪問適用: 完全 zero-info request, 無 evidence, 真係需要 disambig (例如 #7596 「檢查 Zeabur TG」)
+      - ❌ 反訪問 overkill: 加 depth / 詳細 / 全面 / deep dive → 直接執行 full scope
+    - **Net-zero check**: multi-choice button = outbound overhead, 浪費 user round-trip, 浪費 token
+
+### 2026-07-16 (deep dive lesson)
+21. **🔴 慎用 multi-choice 反訪問 scope disambig** (user #6271 即時 reject)
+    - 之前 pattern: user 含糊 request → 我放 multi-choice button 問揀 scope
+    - 已被 reject 兩次 (#6271 「咩來 你想做乜」, 之前一次 #7656 「繼續繼續咩事咩事」)
+    - **Lesson**: 當 user 講「多啲」、「詳細啲」、「全面啲」呢類**加 depth 嘅 request**，**直接做 E = 全部 deep dive**，唔好又問 scope
+    - **Trigger 條件**:
+      - ✅ 反訪問適用: 完全 zero-info request, 無 evidence, 真係需要 disambig (例如 #7596「檢查 Zeabur TG」)
+      - ❌ 反訪問 overkill: 加 depth / 詳細 / 全面 / deep dive → 直接執行 full scope
+    - **Net-zero check**: multi-choice button = outbound overhead, 浪費 user round-trip, 浪費 token
+
+### 2026-07-16 (qdZ01t-dqw8 階段新 lessons)
+22. **🔴 PDF render_summary_pdf.py 嘅 header hard-coded 喺 `_1IM9ZpmEWc` 入面** (qdZ01t-dqw8 階段發現)
+    - `header_footer()` function 入面個 `"Finding Your Unknowns — ..."` 字串係 hard-coded
+    - Generic render 別嘅 PDF 時 header 會出錯
+    - **Workaround**: 在 caller script 入面 override `onFirstPage` / `onLaterPages` 用 custom header lambda (qdZ01t-dqw8 用咗呢個 pattern)
+    - **Net-zero fix**: 未來 generic renderer (`render_generic_summary.py`) 應該將 header text 做 CLI arg
+23. **🔴 YouTube download 撞 bot detection 需要 JS runtime** (qdZ01t-dqw8 階段)
+    - yt-dlp deprecate 咗 without JS runtime extract — `WARNING: [youtube] No supported JavaScript runtime could be found`
+    - 撞 YouTube "Sign in to confirm you're not a bot" → audio download fail
+    - **Solution**: 加 `--js-runtimes node` flag (我哋部機有 Node v22.22.2)
+    - 同 `--proxy socks5://utl:mhd@s4.hk38.ltip.xyz:20105` **一齊用** 必需 — direct 連 YouTube IP 已 block
+    - **Trigger**: 任何 YT video fetch 都應該 by default 用：`yt-dlp --proxy socks5://... --js-runtimes node ...`

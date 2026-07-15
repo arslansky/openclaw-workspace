@@ -1,0 +1,47 @@
+{
+  "entries": [
+    {
+      "text": "2026-07-16: 進行咗 OpenClaw memory system 設定。將 memorySearch provider 由 openai 轉為 none（純 keyword FTS），因為 OpenAI API key 未配對到 agent auth store。啟用咗 Active Memory plugin 同 Dreaming（排程每日 3am）。",
+      "timestamp": 1784134141,
+      "source": "session",
+      "recallCount": 3,
+      "queryCount": 2,
+      "lastRecallAt": 1784134141,
+      "firstRecallAt": 1784130541,
+      "concepts": [
+        "memory",
+        "active-memory",
+        "dreaming",
+        "config",
+        "FTS"
+      ],
+      "metadata": {
+        "sessionId": "test-dreaming",
+        "agent": "arslansky-agent",
+        "importance": 0.8
+      }
+    },
+    {
+      "text": "Active Memory 同 Dreaming 嘅設定：Active Memory 需要 plugins.entries.active-memory 同 plugins.allow，Dreaming 需要 plugins.entries.memory-core.config.dreaming.enabled=true。兩者都係靠 memory-core plugin 運作。",
+      "timestamp": 1784132341,
+      "source": "session",
+      "recallCount": 2,
+      "queryCount": 1,
+      "lastRecallAt": 1784132341,
+      "firstRecallAt": 1784126941,
+      "concepts": [
+        "active-memory",
+        "dreaming",
+        "config",
+        "memory-core"
+      ],
+      "metadata": {
+        "sessionId": "test-dreaming",
+        "agent": "arslansky-agent",
+        "importance": 0.7
+      }
+    }
+  ],
+  "version": 1,
+  "updatedAt": 1784134141
+}

@@ -5,3 +5,7 @@
 {"action": "add_model_registry", "task": "整理所有 provider + model 一覽", "success": true, "files": ["model-registry-2026-07-11.md", "overrides.json"], "note": "registry v1, overrides v2 (OVR-004)"}
 {"action": "add_kimi_code_provider", "task": "加 kimi-code/k2p6 入 openclaw.json 做 vision model", "success": true, "config_changed": "openclaw.json", "backup": "openclaw.json.bak.20260711", "note": "OVR-002 resolved"}
 {"action": "update_memory_override", "task": "更新 MEMORY.md Custom Overrides section + overrides.json", "success": true, "note": "OVR-002 deprecated, OVR-004 added"}
+{"script": "smart_image_gen.py", "task": "evie-argentina-jersey-frontview-smile", "timestamp": "2026-07-19T15:58:00", "success": true, "duration_sec": 90, "provider": "zhi-api", "note": "Argentina home kit, front view, thin brows, sweet smile"}
+{"script": "smart_image_gen.py", "task": "evie-argentina-jersey-longhair-smile", "timestamp": "2026-07-19T16:18:00", "success": true, "duration_sec": 75, "provider": "zhi-api", "note": "Argentina home kit, long hair, front view, smile"}
+{"script": "smart_image_gen.py", "task": "evie-argentina-cheer-flag-pose", "timestamp": "2026-07-19T16:22:00", "success": true, "duration_sec": 150, "provider": "zhi-api", "note": "Argentina flag face paint, cheerleading pose, golden hour"}
+{"script": "smart_image_gen.py", "task": "evie-spain-cheer-flag-pose", "timestamp": "2026-07-19T17:08:00", "success": true, "duration_sec": 180, "provider": "zhi-api", "note": "Spain home kit, flag face paint, fervent cheer pose"}

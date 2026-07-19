@@ -13,8 +13,8 @@ Use runtime-provided startup context first.
 That context may already include:
 
 - `AGENTS.md`, `SOUL.md`, and `USER.md`
-- recent daily memory such as `memory/YYYY-MM-DD.md`
-- `MEMORY.md` when this is the main session
+- recent daily memory such as `../ds-agent/memory/YYYY-MM-DD.md`
+- `../ds-agent/MEMORY.md` when this is the main session
 
 Do not manually reread startup files unless:
 
@@ -22,12 +22,16 @@ Do not manually reread startup files unless:
 2. The provided context is missing something you need
 3. You need a deeper follow-up read beyond the provided startup context
 
-## Memory
+## Memory (Shared)
+
+> ⚠️ **Shared memory with ds-agent**: All agents use `/home/ubuntu/.openclaw/workspace/ds-agent/memory/` as the single shared memory directory.
+> Do NOT create your own `memory/` or `MEMORY.md` in this workspace.
 
 You wake up fresh each session. These files are your continuity:
 
-- **Daily notes:** `memory/YYYY-MM-DD.md` (create `memory/` if needed) — raw logs of what happened
-- **Long-term:** `MEMORY.md` — your curated memories, like a human's long-term memory
+- **Daily notes:** `../ds-agent/memory/YYYY-MM-DD.md` (shared) — raw logs of what happened
+- **Long-term:** `../ds-agent/MEMORY.md` — your curated memories, like a human's long-term memory
+- **Ops log:** `../ds-agent/memory/ops/YYYY-MM-DD.md` — operation audit trail
 
 Capture what matters. Decisions, context, things to remember. Skip the secrets unless asked to keep them.
 

@@ -116,4 +116,12 @@ WORD /pronunciation/ · part of speech · **中文粗體**
 
 ---
 
-*最後更新：2026-07-14 · Vocab Check SOP 新增*
+## 🧠 Active Memory & Dreaming（2026-07-16）
+
+- **Active Memory**：`memorySearch` provider 改為 `none`（pure keyword FTS），避免 OpenAI embedding key 不匹配問題；`memory index --force` 重建成功
+- **Dreaming**：memory-core 啟用 `dreaming.enabled=true`，每日 3am 自動 consolidation；短期記憶庫初次運行中
+- **相關教訓**：memory search 因 embedding provider mismatch 而 paused → 用 `provider=none` + `openclaw memory index --force` 解決
+
+---
+
+*最後更新：2026-07-16 · Active Memory + Dreaming 設定新增*

@@ -1,0 +1,245 @@
+================================================================================
+網絡基礎知識筆記
+日期：2026-07-21
+討論主題：PPPoE、DHCP、MTU、Ethernet Frame、CJK 編碼
+================================================================================
+
+────────────────────────────────────────────────────────────────────────────────
+一、DHCP vs PPPoE
+────────────────────────────────────────────────────────────────────────────────
+
+【DHCP（Dynamic Host Configuration Protocol）】
+- 層面：Network Layer（Layer 3）自動 IP 分配機制
+- 運作：Server 自動分配 IP、子網掩碼、Gateway、DNS
+- 特點：簡單、自動化、IP 係「借嚟用」（lease）
+- 適合：LAN（辦公室、家用網絡）
+
+【PPPoE（Point-to-Point Protocol over Ethernet）】
+- 層面：Data Link Layer（Layer 2）再包裝多一層
+- 運作：需要 username + password 登入認證，由 ISP 分配 IP
+- 特點：per-user 認證、計費、流量監控
+- 適合：ISP 寬頻接入（光纖入屋、DSL）
+
+【為何客戶想由 PPPoE 轉 DHCP？】
+- PPPoE 問題：
+  · 額外 overhead（8 bytes），MTU 要用 1492 而非 1500
+  · MTU 麻煩，易触发 VPN 斷線、網頁打唔開
+  · VPN 效能差，PPPoE 封裝複雜，hardware offload 唔到
+  · 設定麻煩，要 username/password
+  · 延遲稍高
+- DHCP 優勢：插線即用、MTU 1500、VPN 表現更好、效能損耗低
+
+【轉去 DHCP 步驟】
+1. 確認 ISP 支援（同一條線可能同時支援兩種模式）
+2. Router 設定：PPPoE → DHCP Client
+3. 留意 MTU（PPPoe 用 1492，DHCP 用標準 1500）
+4. 如有網頁打唔開，試降 MTU 到 1492 或開啟 MSS Clamping
+
+────────────────────────────────────────────────────────────────────────────────
+二、MTU（Maximum Transmission Unit）
+────────────────────────────────────────────────────────────────────────────────
+
+【MTU 概念】
+- MTU = 一次過能傳送的最大數據量（bytes）
+- 比喻：MTU 1500 = 一架貨車最多裝 1500 箱貨
+- 如果數據 > MTU，會被分成多個 fragment（分片）
+
+【為何 Ethernet MTU 是 1500？】
+1. 1980 年代 Ethernet 標準化，速度慢（10Mbps），1500 係平衡 size
+2. 太細 → overhead 大；太大 → 錯誤要重傳，成個 packet 要再發
+3. 當時 RAM 貴，網卡 buffer 有限
+4. 行業標準慣例，所有設備預設都係 1500
+
+【MTU 1500 計算】
+- Ethernet Frame 總長 = 1518 bytes（6+6+2+1500+4）
+  · Dest MAC：6 bytes
+  · Src MAC：6 bytes
+  · EtherType：2 bytes
+  · Payload（MTU）：1500 bytes
+  · FCS：4 bytes
+- MTU 1500 = Payload 最大 1500 bytes（唔包括 MAC header 同 FCS）
+
+────────────────────────────────────────────────────────────────────────────────
+三、PPPoE MTU 1492 的原因
+────────────────────────────────────────────────────────────────────────────────
+
+【計算】
+1500 bytes（MTU）
+- 8 bytes（PPPoE Header 6 bytes + PPP Header 2 bytes）← overhead
+= 1492 bytes（真正可用 payload）
+
+【PPPoE 包裝結構】
+┌──────────────────────────────────────────────────────┐
+│               Ethernet Frame                          │
+├──────────┬────────────────┬───────────────────────────┤
+│ MAC Hdr  │  PPPoE Header  │  PPP Header  │  Payload  │
+│ 14 bytes │   6 bytes     │   2 bytes    │  (IP/etc) │
+└──────────┴────────────────┴───────────────────────────┘
+                              ↑           ↑
+                    包多一層             再包多一層
+
+【PPPoE Header 6 bytes 分配】
+- Version + Type = 1 byte（版本 1 + 類型 1）
+- Code = 1 byte（0=數據, 9=PADO, a=PADI 等）
+- Session ID = 2 bytes（連接建立後分配）
+- Length = 2 bytes（Payload 長度）
+
+【PPP Header 2 bytes】
+- Protocol = 2 bytes
+- 例如：0x0021 = IP, 0x002B = IPv6
+
+【PPPoE 運作階段】
+Stage 1：Discovery（發現階段）
+  Client 廣播 PADI（我搵 PPPoE Server）
+  → Server 回應 PADO（我在！）
+  → Client 發 PADR（我要連你）
+  → Server 確認 PADS（比你個 Session ID）
+  ⚠️ 呢個階段用廣播（MAC 目標 FF:FF:FF:FF:FF:FF）
+
+Stage 2：Session（PPP 階段）
+  PPP 協商（LCP → Authentication → IPCP）
+  → 正常 IP 數據傳輸（但每個 packet 都包住 PPPoE + PPP header）
+
+Stage 3：Terminate（斷開階段）
+  任何一方發 PADT → Session 結束
+
+【PPPoE Type/Code 值】
+| Type | 名稱              | 用途                          |
+|------|-------------------|------------------------------|
+| 0x09 | PADI              | 客戶發出「邊個係 PPPoE Server？」|
+| 0x07 | PADO              | Server 回覆「我在！」          |
+| 0x19 | PADR              | 客戶選擇呢個 Server           |
+| 0x65 | PADS              | Server 確認建立 Session       |
+| 0xA7 | PADT              | 踢走/中斷連接                 |
+
+【PPP 家族分類】
+| Protocol | 全名                          | 底層         | 常見用途              |
+|----------|-------------------------------|--------------|---------------------|
+| PPP      | Point-to-Point Protocol       | Serial       | 舊式撥號、專線        |
+| PPPoE    | PPP over Ethernet             | Ethernet     | 寬頻接入（DSL、光纖）  |
+| PPPoA    | PPP over ATM                  | ATM          | 早年 DSL             |
+| PPTP     | Point-to-Point Tunneling      | IP（GRE）    | VPN（已淘汰）         |
+| L2TP     | Layer 2 Tunneling Protocol    | IP / ATM     | VPN、運營商絡         |
+
+【PPP 相比純 Ethernet 多出的功能】
+| 功能       | PPP 有 | Ethernet 冇 |
+|-----------|--------|------------|
+| 用戶認證   | ✅     | ❌         |
+| IP 分配   | ✅     | ❌         |
+| 計費      | ✅     | ❌         |
+| 壓縮      | ✅     | ❌         |
+| 加密      | ✅     | ❌         |
+| 自動協商  | ✅     | 有限       |
+
+【MTU 問題解決方法】
+1. MSS Clamping（最推薦）：TCP MSS 設為 1452
+   iptables -t mangle -A FORWARD -p tcp --tcp-flags SYN,RST SYN \
+     -j TCPMSS --set-mss 1452
+2. MTU 固定為 1492（client side）
+3. PMTU Discovery 關閉：sysctl -w net.ipv4.ip_no_pmtu_disc=1
+
+────────────────────────────────────────────────────────────────────────────────
+四、MAC Header 與 FCS
+────────────────────────────────────────────────────────────────────────────────
+
+【MAC Header（14 bytes）】
+┌──────────────┬──────────────────────┐
+│  Dest MAC    │      Src MAC         │
+│   6 bytes    │      6 bytes         │
+└──────────────┴──────────────────────┘
+- MAC = Media Access Control
+- MAC 地址格式：AA:BB:CC:DD:EE:FF（hexadecimal）
+- 前 3 bytes = 廠商 ID（OUI）
+- 後 3 bytes = 廠商自己分配
+- 全世界唯一嘅網卡身份證（燒錄入晶片）
+
+【EtherType 欄位（2 bytes）】
+用嚟聲明入面裝乜
+| 值       | 代表   |
+|----------|--------|
+| 0x0800   | IPv4   |
+| 0x0806   | ARP    |
+| 0x86DD   | IPv6   |
+| 0x8100   | VLAN Tag（802.1Q）|
+
+【FCS（Frame Check Sequence）】
+- 大小：4 bytes
+- 演算法：CRC-32
+- 作用：接收時重新計算 CRC，比較 FCS，一樣=無錯，唔同=出錯
+- 可檢測：單 bit 錯誤、雙 bit 錯誤、奇數個錯誤、突發錯誤（burst errors）
+
+【完整 Ethernet Frame 圖解】
+┌────┬────┬─────┬──────────────┬────┐
+│DMA │SMA │Type │   Payload    │FCS │
+│ 6B │ 6B │ 2B  │  46-1500 B   │ 4B │
+└────┴────┴─────┴──────────────┴────┘
+  ↑      ↑    ↑         ↑          ↑
+ 收MAC  發MAC 類型    數據      校驗碼
+
+注意：Payload 最少 46 bytes，唔夠要 padding 填滿。
+
+────────────────────────────────────────────────────────────────────────────────
+五、CJK 編碼與 UTF-8
+────────────────────────────────────────────────────────────────────────────────
+
+【CJK 係乜？】
+- CJK = Chinese, Japanese, Korean
+- 「中日韓統一表意文字」嘅縮寫
+- 因為呢三種文字喺 Unicode 入面共享同一個編碼區塊（CJK Unified Ideographs）
+
+【編碼戰爭歴史】
+| 編碼      | 地區       | 問題                       |
+|-----------|------------|---------------------------|
+| GB2312    | 中國（大陸）| 只包 6000 幾個漢字，唔夠用  |
+| Big5      | 台灣/香港  | 同 GB2312 唔相容            |
+| Shift-JIS | 日本        | 又係另一套                  |
+| EUC-KR    | 韓國        | 又係另一套                  |
+
+問題：一份文件用 GB2312，另一邊用 Big5 開 → 全部變乱碼
+
+【Unicode 誕生】
+- Unicode = 全球唯一編號（U+4E2D 就係「中」）
+- UTF-8 = 其中一種編碼方式（目前最流行）
+- 點解唔全部用 4 bytes？因為英文本嚟 1 byte 就變 4 bytes，大咗 4 倍
+
+【UTF-8 可變長度編碼】
+| 字元類型         | 範圍           | bytes |
+|------------------|----------------|-------|
+| ASCII            | 0-127          | 1 byte |
+| 中文/日文/韓文（CJK）| 大部分常用字   | 3 bytes |
+| 罕見字/emoji     | 偏僻字         | 4 bytes |
+
+【UTF-8 Bytes 格式】
+1 byte：  0xxxxxxx          （7 bits 可用）
+2 bytes： 110xxxxx 10xxxxxx（11 bits 可用）
+3 bytes： 1110xxxx 10xxxxxx 10xxxxxx（16 bits 可用）✅ 中文
+4 bytes： 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx（21 bits 可用）✅ emoji
+
+【「中」字例子】
+- Unicode：U+4E2D（全球唯一編號）
+- UTF-8 編碼（3 bytes）：11100100 10111000 10101101
+  · 1110 = 固定前綴（告知用 3 bytes）
+
+【中文字數量】
+- 常用字：3000-5000 個
+- 總漢字：超過 9 萬個
+- 2 bytes（16 bits）最多表示 65,536 個字符 → 唔夠晒所有漢字
+- 所以 UTF-8 用 3 bytes 表示大部分 CJK 字符
+
+【空間佔用對比】
+- 英文 "hello"：5 bytes
+- 中文 "你好"：6 bytes（3 + 3）
+
+【UTF-8 中文 3 bytes 原因總結】
+- Unicode 需要表示幾萬個漢字
+- 可變長度令 ASCII 慳位、CJK 用 3 bytes、罕見字用 4 bytes
+- 前綴 bit 告知長度，電腦就知道點讀
+
+================================================================================
+備註
+================================================================================
+- MAC 係燒死喺網卡嘅，唔會變（除非你夾過）；IP 係軟件配置，會變
+- PPPoE 係「借 Ethernet 之道，還 PPP 之功能」
+- 為何 PPPoE 用 1492 MTU：DSL forum 標準化用呢個值，確保唔會 fragmentation
+- Overhead 越多，真正能傳嘅 data 越少，但穩定性同功能就越多
+================================================================================

@@ -278,3 +278,47 @@ This is a starting point. Add your own conventions, style, and rules as you figu
 
 - 永久 protocol = 永久 audit trail (寫入 AGENTS.md)
 - 對應每次新 case 都引用返呢個 section，避免 protocol drift
+
+## 📚 Lessons Loader (auto-loaded, 2026-07-26)
+
+```bash
+# Auto-load lessons at session startup
+if [ -f /home/ubuntu/memory/lessons/loader.sh ]; then
+  bash /home/ubuntu/memory/lessons/loader.sh 2>&1
+fi
+```
+
+- Loader 自動 run 18 條 lessons (shell check + audit reminder + behavioral rule)
+- 創建日期: 2026-07-26 06:00 GMT+8 (per DS Agent review #2488)
+- 取代: lessons_tests/test_workspace_path.sh (broader coverage)
+- 詳見: `/home/ubuntu/memory/lessons/loader.sh` + 18 YAML files
+
+## 🚫 Reply Ending Pattern (2026-07-26 23:23 GMT+8, per user #7974)
+
+**Hard rule**: 唔 加 「Send 完 #XXXX — 描述」 句子 喺 reply 結尾.
+- 任何 session / context / 形式 都 唔 加
+- 純 chat acknowledge 唔 足夠, 必須 由 此 rule 永久 enforce
+- Internal checkpoint summary 屬 internal scratchpad, 唔 屬 user-facing content
+- Message ID 仍 由 system 自動 返 喺 metadata, 但 唔 喺 reply body 顯示
+
+**違規 audit trail**:
+- #7955 (first leak), #7961, #7964, #7967, #7970, #7973 (6 次 leak)
+- #7968 user 1st cancel command (chat promise)
+- #7974 user 2nd cancel command + 此 AGENTS.md rule
+
+## 🚫 No Internal Monologue (2026-07-27 02:30 GMT+8, per user #8002)
+
+**Hard rule (final, 取代 「Message ID Leak Pattern」)**: 我 嘅 reply body 唔 應 出現 我 嘅 internal reasoning 嘅 content.
+- 唔 加 「Send 完 #XXXX」「Reply #XXXX」「我 #XXXX」 等 任何 message_id reference 句子
+- 唔 寫 「我 之後 嗰 turn」「internal monologue」「internal scratchpad」 等 meta-reasoning vocabulary 喺 reply body
+- 唔 寫 「L#24 audit」「L#13 applied」「L#25 applied」 等 rule-citation 句子
+- 我 嘅 internal reasoning 仍 喺 thinking stage, 但 唔 屬 user-facing output
+- Final output 前 filter 掉 任何 帶 「#」 + 4-5 位 number 嘅 句子 + 任何 meta-reasoning 詞
+
+**違規 audit trail** (歷史, 為 將來 reference):
+- 「Send 完」 pattern: 6 次 leak (cancel by #7974)
+- 「Reply #」 pattern: 3 次 leak (cancel by #7993)
+- 任何 「#」 number 寫法: 多 次 leak
+- L#24/L#13/L#25 meta-citation: 多 次 leak (cancel by #8002)
+
+**Root cause**: Output formatter 唔 分 internal vs external. 真 解決 = 取消 我 嘅 reasoning 嘅 leak 到 user-facing 嘅 path. 「Think: off」 屬 visual label, model base behavior 仍 inherent on. AGENTS.md explicit directive 屬 補 救, 唔 source fix.

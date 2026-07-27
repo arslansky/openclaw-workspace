@@ -121,17 +121,40 @@ unset all_proxy
 - Public proxy 唔知 operator 身份，唔用嚟過真密碼
 - Telegram authorized: `160408068` (owner)
 
-### 🔴 Critical lessons（完整 story 見 daily log）
-- Lesson #15: Workspace path outbound 必須 OpenClaw workspace 否則 `OutboundDeliveryError`
-- Lesson #16: Workspace wipe confirmed，script 必須 commit 入 workspace git
-- Lesson #17: Noto CJK font (CFF/PostScript) 唔可以用 reportlab 直接 load → 用 STSong-Light
-- Lesson #18: YT 短片 (< 5 min) zh-Hant 撞 429 → 只用英文 + 自己 distill
-- Lesson #22: PDF render header hard-coded — caller 需 override `onFirstPage`/`onLaterPages`
-- Lesson #23: YT download 撞 bot → 必須加 `--js-runtimes node`
-- Lesson #24: Inbound metadata audit — reply_to_id / body vs memory mismatch 時先 audit 再回覆
-- Lesson #25: 唔好 overshoot call tool — 冇 goal 唔 call update_goal
+### 🔴 Critical lessons（indexed table — 完整 story 見 daily log）
+
+> **編號慣例** (P1a, 2026-07-27):
+> - `L#N` = numbered lesson（呢個 table 內，全 story 喺 daily log）
+> - `M#N` = message-id anchor ref（**唔係 lesson**，只係 reference）
+>
+> **欄位意思**:
+> - **WHEN**: 出現呢個 pattern 時 recall lesson（觸發嗰陣審計先）
+> - **DOMAIN**: discipline tag，畀 memory_search filter 用
+
+| ID | WHEN (trigger) | DOMAIN | Lesson |
+|----|---------------|--------|--------|
+| L#15 | outbound file via TG/WA，path 喺 `~/memory/` 外 | Workspace | Workspace path 必須 OpenClaw workspace，否則 `OutboundDeliveryError` |
+| L#16 | write exec script / systemd unit depends on persisted files | Workspace | Workspace wipe confirmed — script 必須 commit 入 workspace git |
+| L#17 | reportlab `loadFont` / `ParagraphStyle.fontName` 載 CJK 字 | PDF | Noto CJK font (CFF/PostScript) 唔可以用 reportlab load → 用 STSong-Light |
+| L#18 | YT URL duration < 5 min OR new session + zh-Hant caption | YT | 短片 zh-Hant 撞 429 → 只用英文 + 自己 distill |
+| L#22 | reuse `render_summary_pdf.py` 跨 video ID | PDF | PDF render header hard-coded — caller 必須 override `onFirstPage`/`onLaterPages` |
+| L#23 | `yt-dlp <YouTube URL>` 冇 proxy 或冇 `--js-runtimes node` | YT | YT download 撞 bot → 必須加 `--js-runtimes node` |
+| L#24 | inbound 有 `reply_to_id` OR body ↔ memory mismatch | Meta/Audit | Inbound metadata audit 先 — reply_to_id / body vs memory mismatch → audit 先回覆 |
+| L#25 | about to call tool，冇 goal / 為「睇落完整」補 tool | Meta/Discipline | 唔好 overshoot call tool — 冇 goal 唔 call update_goal |
+
+### 🟥 Retired Lessons（P1b, 2026-07-27 — net-zero policy 落地）
+
+> 規則：每加 1 新 lesson → 必須 retire 至少 1 個 existing lesson
+> 格式：`| ID | Retired date | 因咩 retire | 由邊條取代 |`
+
+（暫無 retired lessons）
 
 ## Promoted From Short-Term Memory (2026-07-27)
 
 <!-- openclaw-memory-promotion:memory:memory/2026-07-15.md:26:42 -->
 - `memory/2026-07-15/yt-transcripts/_1IM9ZpmEWc/_1IM9ZpmEWc.en-US.vtt` (10KB, raw) - `memory/2026-07-15/yt-transcripts/_1IM9ZpmEWc/scripts/dedupe_vtt.py` (reusable) - `memory/2026-07-15/yt-transcripts/_1IM9ZpmEWc/scripts/render_summary_pdf.py` (reusable, generic zh-Hant PDF renderer) ### Key insights (跨 MEMORY 整合) - **Finding Your Unknowns 直接 map MEMORY insight-006 (Fable 5 rules)**: 6 條 rule 入面 3 條對位 — WHY / Negative prompt / 唔好 over-plan。PDF sec 8 已 explicit 講呢個 cross-ref。 - **同 14 lessons 對位**: lesson #14 (silent reply stream corruption)、lesson #15 (outbound workspace path)、lesson #17 (CID font)、lesson #18 (短片 429) 全部 present 喺今次... [score=0.926 recalls=4 avg=1.000 source=memory/2026-07-15.md:26-42]
+
+## Promoted From Short-Term Memory (2026-07-28)
+
+<!-- openclaw-memory-promotion:memory:memory/2026-07-15.md:66:102 -->
+- **Bug found**: Inline `<font face="DejaVuSerif">繁中字</font>` wrapping in Table cells. - DejaVuSerif / DejaVuSans / Helvetica 全部係 Latin-only TTF - 包住 CJK char → reportlab render 空白 box (■■■■) - 50+ boxes per page, 20+ `<font>` literal leak **Fix**: Refactor `render_summary_pdf.py`: - 移除所有 inline `<font>` wrap - ParagraphStyle.fontName 一律 STSong-Light (CID, fallback chain auto-handle Latin) - Pure-Latin paragraph (English quote/prompt) 用 DejaVuSerif，但 `_has_cjk()` detect first - Table cell 用 `Paragraph(text, style)` wrapper, 唔再用 raw string **Verify routine established**: re-render 後必 extract text, count `■■` + `<font`, 必須 = 0... [score=0.881 recalls=4 avg=1.000 source=memory/2026-07-15.md:66-102]

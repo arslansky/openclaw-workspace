@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-Smart Image Generator — Aetheracode primary, Zhi API fallback
+Smart Image Generator — Zhi API primary (2026-07-28: Aetheracode removed)
 Usage: smart_image_gen.py <prompt> [size] [quality] [model] [ref_image] [provider]
-Provider: auto | aetheracode | zhi
+Provider: auto | zhi
 """
 
 import sys
@@ -23,18 +23,6 @@ MAX_RETRIES = 4
 
 # ── Keys ──────────────────────────────────────────────────────────
 
-def get_aethercode_key():
-    import sqlite3
-    conn = sqlite3.connect("/home/ubuntu/.openclaw/agents/main/agent/openclaw-agent.sqlite")
-    cur = conn.cursor()
-    cur.execute('SELECT store_json FROM auth_profile_store WHERE store_key = "primary"')
-    row = cur.fetchone()
-    conn.close()
-    if not row:
-        return ""
-    data = json.loads(row[0])
-    return data.get("profiles", {}).get("aethercode:default", {}).get("key", "")
-
 def get_zhi_key():
     with open("/home/ubuntu/.openclaw/agents/main/agent/models.json") as f:
         d = json.load(f)
@@ -42,8 +30,7 @@ def get_zhi_key():
     zhi = providers.get("zhi-api", {})
     return zhi.get("apiKey", "")
 
-AETHERCODE_KEY = get_aethercode_key()
-ZHI_KEY        = get_zhi_key()
+ZHI_KEY = get_zhi_key()
 
 # ── Output ────────────────────────────────────────────────────────
 
@@ -140,13 +127,6 @@ print(f"Model: {MODEL} | Size: {SIZE} | Quality: {QUALITY}")
 print(f"Provider mode: {PROVIDER}")
 print()
 
-if PROVIDER == "aetheracode":
-    ok, failover, fatal, prov, path = try_generate(
-        "aetheracode",
-        "https://api.aetheracode.com/v1/images/generations",
-        AETHERCODE_KEY, 180)
-    sys.exit(0 if ok else 1)
-
 if PROVIDER == "zhi":
     ok, failover, fatal, prov, path = try_generate(
         "zhi",
@@ -154,33 +134,7 @@ if PROVIDER == "zhi":
         ZHI_KEY, 300)
     sys.exit(0 if ok else 1)
 
-# Auto mode
-for attempt in range(1, MAX_RETRIES + 2):
-    ok, failover, fatal, prov, path = try_generate(
-        "aetheracode",
-        "https://api.aetheracode.com/v1/images/generations",
-        AETHERCODE_KEY, 180)
-
-    if ok:
-        sys.exit(0)
-
-    if fatal:
-        sys.exit(1)
-
-    if failover:
-        print(f"⚠️  Aetheracode quota/balance error — falling back to Zhi API", file=sys.stderr)
-        ok2, _, fatal2, prov2, path2 = try_generate(
-            "zhi",
-            "https://zhi-api.com/v1/images/generations",
-            ZHI_KEY, 300)
-        sys.exit(0 if ok2 else 1)
-
-    if attempt <= MAX_RETRIES:
-        print(f"🔄 Retry {attempt}/{MAX_RETRIES} in 3s...", file=sys.stderr)
-        import time; time.sleep(3)
-
-# All retries failed → last resort: Zhi
-print(f"⚠️  All Aetheracode retries exhausted — last resort: Zhi API", file=sys.stderr)
+# Auto mode = Zhi only (2026-07-28)
 ok, _, fatal, prov, path = try_generate(
     "zhi",
     "https://zhi-api.com/v1/images/generations",

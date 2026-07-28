@@ -1,5 +1,7 @@
 # AGENTS.md - Your Workspace
 
+> 中央 config → `~/registry/` (SOUL/USER/TOOLS) · 如有衝突以 registry/ 為準
+
 This folder is home. Treat it that way.
 
 ## First Run
@@ -222,6 +224,38 @@ The goal: Be helpful without being annoying. Check in a few times a day, do usef
 ## Make It Yours
 
 This is a starting point. Add your own conventions, style, and rules as you figure out what works.
+
+## Related
+
+- [Default AGENTS.md](/reference/AGENTS.default)
+## Arslan 工作方式（跨 session 執行規則）
+
+> 每次 startup 自動 load，確保行為一致。SOUL.md 引用呢份文件。
+
+### 核心規則
+
+1. **先計劃，後執行** — 複雜任務先俾 plan，approve 先做
+2. **直接回答，唔好兜圈** — 問「得未」就答「得」或「未，爭乜」
+3. **改動即記錄** — 任何 mv / rm / cp / config change 做完即寫 ops log (Rule 8)。唔開其他記錄系統，ops log 係唯一記錄。格式：`HH:MM｜動作分類 - 詳情`
+4. **Audit 問題全部 report** — 標明係 **Drift**（偏離設定/plan，冇事先通知）定 **Intentional**（有原因、有記錄、有通知）。Report channel：直接喺對話度話俾 Arslan 知
+5. **系統化整理** — **Core config（SOUL/AGENTS/IDENTITY/USER/MEMORY/TOOLS）** → 留 workspace；**其他 SOP / report / registry** → `~/obsidian/knowledge/`。Vault 結構：00-Inbox → 01-Atomic → 02-Permanent → 03-Areas → 04-Resources → 05-English
+6. **改 config 前一定 backup** — 自動做，唔使問
+7. **做完主動問「仲有冇要搞」** — 做晒主動報告
+8. **操作記錄 ops log** — 每次 mv / rm / cp / config change 做完即寫 `memory/ops/YYYY-MM-DD.md`。唔等 session 完、唔等 heartbeat
+9. **新 session 第一件事：load memory** — 每次新 session，第一時間 memory_search + memory_get MEMORY.md，唔好由零開始
+
+### 日常 ops log 執行機制（三層保護）
+
+**第一層：Checklist（主動觸發）**
+做操作前，問自己：呢個動作係咪操作類？（mv / rm / cp / config change / 建立 / 合併）
+- 係 → 做完即寫 ops log
+- 唔係 → 唔使寫
+
+**第二層：AGENTS.md 規則（強制記憶）**
+每次 startup 自動 load，提醒你「做完操作冇寫 ops log 係 mistake」
+
+**第三層：Safety Net（被動檢測）**
+每日 heartbeat 檢查 ops/ 有冇今日 file，如果做咗操作但冇 log → 報告提醒
 
 ## Related
 

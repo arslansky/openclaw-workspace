@@ -35,3 +35,4 @@ scripts.bak.*/
 # Embedded repos (not part of main backup)
 minimax-agent/repos/
 toolbox_repo/
+janzaibot-agent/

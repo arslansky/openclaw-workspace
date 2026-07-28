@@ -138,3 +138,41 @@ curl "https://www.googleapis.com/youtube/v3/captions?part=snippet&videoId=VIDEO_
    - 遇上 truncated key → **重搵完整 key**，**唔好將就**
    - **冇完整 key → 直接報錯、唔好誤判 backend 壞 / endpoint 死**
    - 浪費 call 浪費 token 之餘，仲會出錯結論（例如誤判 API key revoked）
+
+
+## 📤 Outbound Protocol (Telegram)
+
+Outbound file-send to Telegram is delegated to the **Telegram Bot API** (`api.telegram.org/bot<TOKEN>/sendDocument`), NOT to OpenClaw's own provider routing.
+
+**When outbound TG send is allowed:**
+- User explicitly requests file send to a specific Telegram chat (DM/group/channel) for a stated purpose.
+- A dedicated skill (proposed via `skill_workshop`) has been approved and is active for the send action (e.g. `tg-send-doc`).
+- Token is read from an env file (chmod 600), never from CLI args, never pasted in chat.
+- Audit log entry written before send (chat_id, file_path, byte_count, timestamp).
+
+**When outbound TG send is NOT allowed (hard-block):**
+- Sending agent-generated self-introductions / agent self-representation without explicit approval.
+- Sending to a target the user has not verified (unknown chat_id, unverified group).
+- Sending using a token that has been pasted in chat logs / Telegram server-side retention.
+- Sending in response to a request that conflicts with any SOUL.md Core Truth / Boundary.
+
+If any condition is unmet → refuse and ask user to supply the missing piece.
+
+
+---
+
+## 📧 Zoho Email (kimbot247@zohomail.com)
+
+### SMTP Config
+- **Server**: `smtp.zoho.com:465` (SSL)
+- **Username**: `kimbot247@zohomail.com`
+- **From**: `KimBot <kimbot247@zohomail.com>`
+
+### Usage
+Use via skill `zoho-email-send`. Python SMTP template available in skill.
+Credentials stored in skill definition. DO NOT paste in chat.
+
+### Safety
+1. Never paste password in chat — if exposed, request new app password from Zoho
+2. Ask user before sending to unverified recipients
+3. Ops log entry before every send (to, subject, byte_count)

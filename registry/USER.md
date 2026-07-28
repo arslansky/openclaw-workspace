@@ -1,4 +1,5 @@
 # USER.md — User Profile
+> Last updated: 28/7/2026
 
 - **Name:** Arslan (Arslan🦁)
 - **Language:** Cantonese (廣東話)

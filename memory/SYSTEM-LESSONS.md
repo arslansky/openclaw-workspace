@@ -129,3 +129,11 @@ bash scripts/smart_image_gen.sh "<prompt>" "<size>" "<quality>" "<model>"
 **⚠️ 硬性規定（AGENTS.md）：**
 - 永遠行 script，唔准用 image_generate tool 直接生成
 - 生圖前必須確認 API endpoint 係 Zhi
+
+## 網頁爬蟲策略（2026-07-31 新增）
+
+**動態頁面（富途牛牛、需 JS 渲染）→ 用 `browser` 工具**
+- `web_fetch` 適合簡單 HTML，動態頁面內容残缺
+- `browser` 可完整渲染，等於真人瀏覽器行一遍
+- 觸發詞：「爬」、「fetch」、「抓」+ 連結
+

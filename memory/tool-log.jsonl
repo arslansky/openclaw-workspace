@@ -12,3 +12,4 @@
 {"script": "smart_image_gen.py", "task": "evie-gothic-lolita", "timestamp": "2026-07-28T22:11:00", "success": true, "duration_sec": 90, "provider": "zhi-api", "note": "Gothic Lolita outfit, black Victorian dress, parasol"}
 {"script": "smart_image_gen.py", "task": "evie-sweet-lolita", "timestamp": "2026-07-28T22:29:00", "success": true, "duration_sec": 180, "provider": "zhi-api", "note": "Sweet Lolita outfit, pastel pink Victorian dress, bonnet hat"}
 {"script": "smart_image_gen.py", "task": "evie-sweet-lolita-retry", "timestamp": "2026-07-28T22:39:00", "success": true, "duration_sec": 120, "provider": "zhi-api", "note": "Sweet Lolita retry after gateway restart"}
+{"script": "smart_image_gen.py", "task": "生圖-7709槓桿產品復盤卡通圖x3", "success": true, "duration_sec": 120, "note": "Zhi API gpt-image-2, 3張圖全部成功"}

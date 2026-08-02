@@ -1,0 +1,2 @@
+[arslansky-agent/sessions/arslansky-agent/99c61972-d85f-4878-a014-501ec7f670e2.jsonl#L1029] Assistant: Dreaming due ~3h. All good. HEARTBEAT_OK
+[arslansky-agent/sessions/arslansky-agent/99c61972-d85f-4878-a014-501ec7f670e2.jsonl#L1039] Assistant: ~20 min until dreaming. All good. HEARTBEAT_OK

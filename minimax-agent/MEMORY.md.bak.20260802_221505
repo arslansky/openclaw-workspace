@@ -34,7 +34,7 @@
 - **英文 dedupe**: rolling window 每段 3 次，consecutive identical lines → 1
 - **Delivery format**: first = timed .txt, second = clean .txt, 永遠保留 raw .vtt
 - **Folder**: `memory/<YYYY-MM-DD>/yt-transcripts/<videoID>/`
-- **Anti-bot**: `yt-dlp --proxy socks5://cwb:rvn@47.76.184.24:11908 --js-runtimes node`
+- **Anti-bot**: `yt-dlp --proxy socks5://utl:mhd@s4.hk38.ltip.xyz:20105 --js-runtimes node`
 
 ### 🔴 其他 user 明令
 - **Net-zero policy**: 每加 1 新 artifact → retire 至少 1 個 existing artifact
@@ -49,7 +49,7 @@
 
 ### Proxy
 ```bash
-export all_proxy="socks5://cwb:rvn@47.76.184.24:11908"
+export all_proxy="socks5://utl:mhd@s4.hk38.ltip.xyz:20105"
 unset all_proxy
 ```
 
@@ -92,7 +92,7 @@ COOKIES_FILE=~/.yt-cookies.txt ./yt-subs.sh "URL"
 
 ### Proxy
 ```bash
-export all_proxy="socks5://cwb:rvn@47.76.184.24:11908"
+export all_proxy="socks5://utl:mhd@s4.hk38.ltip.xyz:20105"
 unset all_proxy
 ```
 
@@ -149,6 +149,11 @@ unset all_proxy
 
 （暫無 retired lessons）
 
+## Promoted From Short-Term Memory (2026-07-27)
+
+<!-- openclaw-memory-promotion:memory:memory/2026-07-15.md:26:42 -->
+- `memory/2026-07-15/yt-transcripts/_1IM9ZpmEWc/_1IM9ZpmEWc.en-US.vtt` (10KB, raw) - `memory/2026-07-15/yt-transcripts/_1IM9ZpmEWc/scripts/dedupe_vtt.py` (reusable) - `memory/2026-07-15/yt-transcripts/_1IM9ZpmEWc/scripts/render_summary_pdf.py` (reusable, generic zh-Hant PDF renderer) ### Key insights (跨 MEMORY 整合) - **Finding Your Unknowns 直接 map MEMORY insight-006 (Fable 5 rules)**: 6 條 rule 入面 3 條對位 — WHY / Negative prompt / 唔好 over-plan。PDF sec 8 已 explicit 講呢個 cross-ref。 - **同 14 lessons 對位**: lesson #14 (silent reply stream corruption)、lesson #15 (outbound workspace path)、lesson #17 (CID font)、lesson #18 (短片 429) 全部 present 喺今次... [score=0.926 recalls=4 avg=1.000 source=memory/2026-07-15.md:26-42]
+
 ## Promoted From Short-Term Memory (2026-07-28)
 
 <!-- openclaw-memory-promotion:memory:memory/2026-07-15.md:66:102 -->
@@ -162,8 +167,3 @@ unset all_proxy
 - 新增 2 個 reusable scripts (`dedupe_vtt.py`, `render_summary_pdf.py`) — generic 工具，非 single-use - Index 已 maintain 喺 2026-07-11 single source of truth，無需新 index file - 1 new row 落 existing topic cross-ref table — non-noise addition ### Outbound - msgId 7645: 通知 user 開工 - msgId 7646: PDF summary - msgId 7647: timed transcript - msgId 7648: clean transcript --- ## 00:55 GMT+8 — PDF font decision (#7668) User reply #7646 (PDF) with decision: "更新用Serif 為英文字體" Action: - Patch `render_summary_pdf.py`: DEFAULT_LATIN = DejaVuSerif, DEFAULT_CJK = STSong-Light - Re-render `_1IM9ZpmEWc.summary.zh-Hant.pdf` with new default (38KB, 6 pages) -... [score=0.901 recalls=3 avg=1.000 source=memory/2026-07-15.md:36-72]
 <!-- openclaw-memory-promotion:memory:memory/2026-07-10.md:32:61 -->
 - | `OPENCLAW_EVENT=PreCompact` | Always snapshot | | `OPENCLAW_EVENT=Stop` | Snapshot at session end | | `OPENCLAW_PRESSURE >= threshold` (default 70) | Snapshot | | `--force` flag | Skip pressure check, snapshot | | Default (no trigger) | Auto-detect pressure or skip | ### Recall output format ``` === RECALL_SNAPSHOT === Last snapshot TS: 1783619334 Snapshot file: memory/2026-07-10/snapshots/memory-1783619334.md --- Snapshot footer (last 8 lines) --- [markers] --- Daily log entries since last snapshot --- [entries] --- Action hint: < 24h = CONTINUATION, >= 24h = FRESH === END === ``` ### E2E test results (01:48) | Test | Result |... [score=0.840 recalls=3 avg=1.000 source=memory/2026-07-10.md:32-61]
-
-## Promoted From Short-Term Memory (2026-08-03)
-
-<!-- openclaw-memory-promotion:memory:memory/ops/2026-07-30.md:1:25 -->
-- ### 23:52 GMT+8 — YT 2beOYY4S0B8: kome.ai 直接撈到 transcript, 完全 skip STT **狀態**: ✅ Intentional, fully verified **決策**: - yt-dlp `--list-subs` 報「has no subtitles」 - 但 kome.ai POST `{video_id: full URL, format: true}` 直接 hit 中, full 20:22 transcript 拎到 - youtube-transcript-api 舊 endpoint 已 deprecated, 唔用 - timedtext.google.com 直接 API = empty; 唔用 - tart.leporin.xyz = empty; 唔用 **Pipeline**: `yt-dlp metadata` → 3x parallel probe → kome.ai hit → distill PDF + clean .txt **Result**: PDF 10.7KB + transcript 20KB, 0 STT 死局, 0 whisper base hang **追問**: 要唔要寫 L#26 (`--list-subs zero ≠ transcript zero`) 入 MEMORY.md？default kome.ai 落 yt-subs.sh... [score=0.965 recalls=3 avg=1.000 source=memory/ops/2026-07-30.md:1-25]

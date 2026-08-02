@@ -14,7 +14,8 @@ or callable as a script (`./distill_summary.py <clean_txt> <pdf_out>`).
 
 Source-of-truth conventions:
 - Input: zh-Hant (or other CJK) clean transcript, one sentence per line.
-- Output: A4 PDF using STSong-Light CID font (per L#17 lesson).
+- Output: A4 PDF using AR PL UKai TW (楷體) font (user preference 2026-08-03).
+  Falls back to STSong-Light CID if UKai not installed.
 """
 
 from __future__ import annotations
@@ -32,6 +33,7 @@ from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
 from reportlab.lib.units import cm
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.cidfonts import UnicodeCIDFont
+from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.platypus import (
     PageBreak,
     Paragraph,
@@ -155,12 +157,28 @@ def extract_quote_with_anchor(
 
 PDFMETRY_DONE = False
 
+# Default CJK font: AR PL UKai TW (楷體) — user choice 2026-08-03 (msgId 8241).
+# Font file: /usr/share/fonts/truetype/arphic/ukai.ttc (fonts-arphic-ukai pkg).
+# subfontIndex=2 → AR PL UKai TW Book (繁體楷體).
+DEFAULT_FONT = "ARPLUKaiTW"
+UKAI_TTC = "/usr/share/fonts/truetype/arphic/ukai.ttc"
+
 
 def _ensure_fonts() -> None:
+    """Register the default CJK font (AR PL UKai TW 楷體)."""
     global PDFMETRY_DONE
-    if not PDFMETRY_DONE:
+    if PDFMETRY_DONE:
+        return
+    try:
+        pdfmetrics.registerFont(TTFont(DEFAULT_FONT, UKAI_TTC, subfontIndex=2))
+    except Exception as e:
         pdfmetrics.registerFont(UnicodeCIDFont("STSong-Light"))
-        PDFMETRY_DONE = True
+        print(
+            f"[distill_summary] warning: UKai not loadable ({e}); "
+            f"falling back to STSong-Light (宋體).",
+            file=sys.stderr,
+        )
+    PDFMETRY_DONE = True
 
 
 @dataclass
@@ -186,7 +204,7 @@ def build_pdf(
     Hardening:
     - Pre-flight every section body for L#17-class bugs (refuse on match).
     - Pre-flight every quote-source pair for L#11 timestamp anchors.
-    - All Paragraph() calls use STSong-Light CID font (no Latin fallback).
+    - All Paragraph() calls use AR PL UKai TW (楷體) by default.
     """
     _ensure_fonts()
     out_path = Path(out_path)
@@ -214,25 +232,25 @@ def build_pdf(
 
     styles = getSampleStyleSheet()
     title_style = ParagraphStyle(
-        "TitleZH", parent=styles["Title"], fontName="STSong-Light",
+        "TitleZH", parent=styles["Title"], fontName=DEFAULT_FONT,
         fontSize=18, leading=24, spaceAfter=12, alignment=TA_LEFT,
     )
     h2_style = ParagraphStyle(
-        "H2ZH", parent=styles["Heading2"], fontName="STSong-Light",
+        "H2ZH", parent=styles["Heading2"], fontName=DEFAULT_FONT,
         fontSize=13, leading=18, spaceBefore=12, spaceAfter=6,
         textColor=colors.HexColor("#1a4d80"),
     )
     body_style = ParagraphStyle(
-        "BodyZH", parent=styles["BodyText"], fontName="STSong-Light",
+        "BodyZH", parent=styles["BodyText"], fontName=DEFAULT_FONT,
         fontSize=10, leading=14, alignment=TA_LEFT, spaceAfter=6,
     )
     quote_style = ParagraphStyle(
-        "QuoteZH", parent=styles["BodyText"], fontName="STSong-Light",
+        "QuoteZH", parent=styles["BodyText"], fontName=DEFAULT_FONT,
         fontSize=9, leading=13, alignment=TA_LEFT, leftIndent=20,
         textColor=colors.HexColor("#555555"), spaceAfter=4,
     )
     meta_style = ParagraphStyle(
-        "MetaZH", parent=styles["BodyText"], fontName="STSong-Light",
+        "MetaZH", parent=styles["BodyText"], fontName=DEFAULT_FONT,
         fontSize=9, leading=13, alignment=TA_LEFT,
         textColor=colors.HexColor("#666666"), spaceAfter=4,
     )

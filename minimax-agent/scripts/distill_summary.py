@@ -163,9 +163,20 @@ PDFMETRY_DONE = False
 DEFAULT_FONT = "ARPLUKaiTW"
 UKAI_TTC = "/usr/share/fonts/truetype/arphic/ukai.ttc"
 
+# Default Latin font: DejaVu Sans Mono — user choice 2026-08-03 (msgId 8254).
+# Used for English / ASCII segments inside paragraphs (dual-font mixing).
+LATIN_FONT = "DejaVuSansMono"
+DEJAVU_MONO_TTF = "/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf"
+
+# Bytes that belong to the CJK side (mix in with 楷體). Kept conservative:
+# only ASCII Latin letters/digits/punct split to the Latin font; CJK + other
+# Unicode (e.g. →, ・, full-width) stay in the CJK font.
+_CJK_RE = re.compile(r"[\u4e00-\u9fff\u3400-\u4dbf\u3000-\u303f\uff00-\uffef\u2014\u2026\u2192]")
+_LATIN_SEG_RE = re.compile(r"[A-Za-z0-9][A-Za-z0-9 ._+/-]*")
+
 
 def _ensure_fonts() -> None:
-    """Register the default CJK font (AR PL UKai TW 楷體)."""
+    """Register default CJK (楷體) + Latin (DejaVu Sans Mono) fonts."""
     global PDFMETRY_DONE
     if PDFMETRY_DONE:
         return
@@ -178,7 +189,60 @@ def _ensure_fonts() -> None:
             f"falling back to STSong-Light (宋體).",
             file=sys.stderr,
         )
+    try:
+        pdfmetrics.registerFont(TTFont(LATIN_FONT, DEJAVU_MONO_TTF))
+    except Exception as e:
+        print(
+            f"[distill_summary] warning: DejaVuSansMono not loadable ({e}); "
+            f"Latin text will fall back to the CJK font.",
+            file=sys.stderr,
+        )
     PDFMETRY_DONE = True
+
+
+def _segment_html(text: str) -> str:
+    """Split a mixed CJK+Latin paragraph so Latin runs use LATIN_FONT.
+
+    Existing inline tags (`<b>`, `<i>`, `<br/>`) are preserved untouched.
+    Runs of ASCII letters/digits/punct (>=1 char) are wrapped in
+    `&lt;font face=...&gt;` using the default Latin font. Everything else
+    (CJK, full-width, arrows, em-dashes) stays in the default CJK font.
+    Returns an HTML-safe string ready for Paragraph().
+    """
+    out = []
+    # Split keeping inline tags intact. Use a placeholder approach:
+    # walk the string, emit Latin segments with <font>, preserve tags verbatim.
+    buf = []
+    i = 0
+    n = len(text)
+    while i < n:
+        ch = text[i]
+        # Preserve HTML tags (<b>, <i>, </b>, <br/>, <font ...>) as-is.
+        if ch == "<":
+            j = text.find(">", i)
+            if j != -1:
+                buf.append(text[i : j + 1])
+                i = j + 1
+                continue
+        # Check if this starts a Latin run.
+        if ch.isascii() and (ch.isalnum() or ch in " ._+/-::") and not ch.isspace():
+            j = i
+            while j < n:
+                c = text[j]
+                # Continue while ASCII word/num/punct (not whitespace, not tag).
+                if c.isascii() and not c.isspace() and (c.isalnum() or c in " ._+/-:,'&()[]"):
+                    j += 1
+                else:
+                    break
+            run = text[i:j]
+            if run:
+                buf.append(f"<font face={LATIN_FONT}>{run}</font>")
+                i = j
+                continue
+        # Ordinary CJK / whitespace / other char: emit as-is.
+        buf.append(ch)
+        i += 1
+    return "".join(buf)
 
 
 @dataclass
@@ -256,15 +320,15 @@ def build_pdf(
     )
 
     story = []
-    story.append(Paragraph(title, title_style))
+    story.append(Paragraph(_segment_html(title), title_style))
     for m in meta_lines:
-        story.append(Paragraph(m, meta_style))
+        story.append(Paragraph(_segment_html(m), meta_style))
     story.append(Spacer(1, 12))
 
     for sec in sections:
-        story.append(Paragraph(sec.heading, h2_style))
-        # Replace newlines with <br/> for Paragraph rendering.
-        story.append(Paragraph(sec.body.replace("\n", "<br/>"), body_style))
+        story.append(Paragraph(_segment_html(sec.heading), h2_style))
+        # Replace newlines with <br/> for Paragraph rendering + dual-font split.
+        story.append(Paragraph(_segment_html(sec.body.replace("\n", "<br/>")), body_style))
 
         # Append timestamp-anchored quotes (L#11 hardening).
         for quote, src in sec.quotes_with_anchors:
@@ -275,7 +339,7 @@ def build_pdf(
                 raise ValueError(
                     f"[L#11] quote-not-found in {report_label} §{sec.heading!r}: {e}"
                 ) from e
-            story.append(Paragraph(f"&nbsp;&nbsp;<i>{anchored}</i>", quote_style))
+            story.append(Paragraph(_segment_html(f"&nbsp;&nbsp;<i>{anchored}</i>"), quote_style))
         story.append(Spacer(1, 6))
 
     doc.build(story)

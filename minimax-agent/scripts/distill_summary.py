@@ -14,8 +14,8 @@ or callable as a script (`./distill_summary.py <clean_txt> <pdf_out>`).
 
 Source-of-truth conventions:
 - Input: zh-Hant (or other CJK) clean transcript, one sentence per line.
-- Output: A4 PDF using AR PL UKai TW (楷體) font (user preference 2026-08-03).
-  Falls back to STSong-Light CID if UKai not installed.
+- Output: A4 PDF using Noto Sans CJK TC (繁體黑體) font (user preference 2026-08-03).
+  Falls back to UKai → STSong-Light CID if Noto TC not installed.
 """
 
 from __future__ import annotations
@@ -157,18 +157,21 @@ def extract_quote_with_anchor(
 
 PDFMETRY_DONE = False
 
-# Default CJK font: AR PL UKai TW (楷體) — user choice 2026-08-03 (msgId 8241).
-# Font file: /usr/share/fonts/truetype/arphic/ukai.ttc (fonts-arphic-ukai pkg).
-# subfontIndex=2 → AR PL UKai TW Book (繁體楷體).
-DEFAULT_FONT = "ARPLUKaiTW"
-UKAI_TTC = "/usr/share/fonts/truetype/arphic/ukai.ttc"
+# Default CJK font: Noto Sans TC (黑體) — user choice 2026-08-03 (msgId 8256).
+# Google Fonts variable TTF (TrueType outlines, reportlab-compatible).
+# Installed at /usr/share/fonts/truetype/noto-custom/NotoSansTC-Variable.ttf.
+# NOTE: system Noto CJK TTC uses CFF outlines → reportlab cannot load; this
+# Google Fonts TTF uses glyf → works. (L#17 lesson)
+DEFAULT_FONT = "NotoSansTC"
+CJK_TTC = "/usr/share/fonts/truetype/noto-custom/NotoSansTC-Variable.ttf"
+CJK_TTC_SUBFONT_TC = None  # single TTF, no subfont needed
 
 # Default Latin font: DejaVu Sans Mono — user choice 2026-08-03 (msgId 8254).
 # Used for English / ASCII segments inside paragraphs (dual-font mixing).
 LATIN_FONT = "DejaVuSansMono"
 DEJAVU_MONO_TTF = "/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf"
 
-# Bytes that belong to the CJK side (mix in with 楷體). Kept conservative:
+# Bytes that belong to the CJK side (mix in with Noto Sans CJK). Kept conservative:
 # only ASCII Latin letters/digits/punct split to the Latin font; CJK + other
 # Unicode (e.g. →, ・, full-width) stay in the CJK font.
 _CJK_RE = re.compile(r"[\u4e00-\u9fff\u3400-\u4dbf\u3000-\u303f\uff00-\uffef\u2014\u2026\u2192]")
@@ -176,17 +179,21 @@ _LATIN_SEG_RE = re.compile(r"[A-Za-z0-9][A-Za-z0-9 ._+/-]*")
 
 
 def _ensure_fonts() -> None:
-    """Register default CJK (楷體) + Latin (DejaVu Sans Mono) fonts."""
+    """Register default CJK (Noto Sans TC 黑體) + Latin (DejaVu Sans Mono) fonts."""
     global PDFMETRY_DONE
     if PDFMETRY_DONE:
         return
     try:
-        pdfmetrics.registerFont(TTFont(DEFAULT_FONT, UKAI_TTC, subfontIndex=2))
+        pdfmetrics.registerFont(TTFont(DEFAULT_FONT, CJK_TTC))
     except Exception as e:
-        pdfmetrics.registerFont(UnicodeCIDFont("STSong-Light"))
+        # Fallback: if Noto TC TTF not loadable, try UKai → CID Song.
+        try:
+            pdfmetrics.registerFont(TTFont("ARPLUKaiTW", "/usr/share/fonts/truetype/arphic/ukai.ttc", subfontIndex=2))
+        except Exception:
+            pdfmetrics.registerFont(UnicodeCIDFont("STSong-Light"))
         print(
-            f"[distill_summary] warning: UKai not loadable ({e}); "
-            f"falling back to STSong-Light (宋體).",
+            f"[distill_summary] warning: Noto Sans TC not loadable ({e}); "
+            f"falling back to alternative CJK font.",
             file=sys.stderr,
         )
     try:
@@ -268,7 +275,7 @@ def build_pdf(
     Hardening:
     - Pre-flight every section body for L#17-class bugs (refuse on match).
     - Pre-flight every quote-source pair for L#11 timestamp anchors.
-    - All Paragraph() calls use AR PL UKai TW (楷體) by default.
+    - All Paragraph() calls use Noto Sans CJK TC (繁體黑體) by default.
     """
     _ensure_fonts()
     out_path = Path(out_path)

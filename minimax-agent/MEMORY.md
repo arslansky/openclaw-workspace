@@ -34,7 +34,7 @@
 - **英文 dedupe**: rolling window 每段 3 次，consecutive identical lines → 1
 - **Delivery format**: first = timed .txt, second = clean .txt, 永遠保留 raw .vtt
 - **Folder**: `memory/<YYYY-MM-DD>/yt-transcripts/<videoID>/`
-- **Anti-bot**: `yt-dlp --proxy socks5://utl:mhd@s4.hk38.ltip.xyz:20105 --js-runtimes node`
+- **Anti-bot**: `yt-dlp --proxy socks5://cwb:rvn@47.76.184.24:11908 --js-runtimes node`
 
 ### 🔴 其他 user 明令
 - **Net-zero policy**: 每加 1 新 artifact → retire 至少 1 個 existing artifact
@@ -49,7 +49,7 @@
 
 ### Proxy
 ```bash
-export all_proxy="socks5://utl:mhd@s4.hk38.ltip.xyz:20105"
+export all_proxy="socks5://cwb:rvn@47.76.184.24:11908"
 unset all_proxy
 ```
 
@@ -92,7 +92,7 @@ COOKIES_FILE=~/.yt-cookies.txt ./yt-subs.sh "URL"
 
 ### Proxy
 ```bash
-export all_proxy="socks5://utl:mhd@s4.hk38.ltip.xyz:20105"
+export all_proxy="socks5://cwb:rvn@47.76.184.24:11908"
 unset all_proxy
 ```
 

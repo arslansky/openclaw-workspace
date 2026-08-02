@@ -7,22 +7,23 @@ Skills define _how_ tools work. This file is for _your_ specifics — the stuff 
 ## 🌐 Network / Proxy
 
 ### 預設 Proxy（公開，用完即 unset）
-- **Host**: `s4.hk38.ltip.xyz`
-- **Port**: `20105`
-- **User**: `utl`
-- **Pass**: `mhd`
+- **Host**: `47.76.184.24`
+- **Port**: `11908`
+- **User**: `cwb`
+- **Pass**: `rvn`
+- **到期**: `2026-09-01 22:11:30`
 - **Protocol**: HTTP + SOCKS5 都 work
-- **Hosting**: 華為雲（Hong Kong 命名但其實中國）
-- **Ping**: 2.6ms（極快）
 - **⚠️ 唔好用嚟過真密碼 / 真 API key**（public proxy 唔知 operator）
 - **✅ OK 嚟 download public content**（YouTube audio、wiki、github release）
+- **⚠️ 實測 (2026-08-02)**: 通 internet (curl 200) 但 **YouTube 仍 bot-block**（datacenter IP，需 cookies）— L#23
+- **舊 proxy**: `s4.hk38.ltip.xyz:20105` (utl/mhd) 已死 (connection refused, 2026-08-02 起) — 唔再用
 
 ### Set / Unset
 ```bash
 # Set
-export http_proxy="http://utl:***@s4.hk38.ltip.xyz:20105"
-export https_proxy="http://utl:***@s4.hk38.ltip.xyz:20105"
-export all_proxy="socks5://utl:***@s4.hk38.ltip.xyz:20105"
+export http_proxy="http://cwb:***@47.76.184.24:11908"
+export https_proxy="http://cwb:***@47.76.184.24:11908"
+export all_proxy="socks5://cwb:***@47.76.184.24:11908"
 
 # Unset
 unset http_proxy https_proxy all_proxy
@@ -34,18 +35,18 @@ unset http_proxy https_proxy all_proxy
 
 ```bash
 # HTTP proxy 過一般 webpage OK，但 yt-dlp 過 YouTube 會 407
-yt-dlp --proxy "http://utl:***@s4.hk38.ltip.xyz:20105" -f "bestaudio[ext=m4a]" "URL"
+yt-dlp --proxy "http://cwb:***@47.76.184.24:11908" -f "bestaudio[ext=m4a]" "URL"
 # ❌ Tunnel connection failed: 407 Proxy Authentication Required
 
 # ✅ Workaround：改用 SOCKS5（HTTPS over SOCKS 唔需要 CONNECT）
-yt-dlp --proxy "socks5://utl:mhd@s4.hk38.ltip.xyz:20105" -f "bestaudio[ext=m4a]" "URL"
+yt-dlp --proxy "socks5://cwb:rvn@47.76.184.24:11908" -f "bestaudio[ext=m4a]" "URL"
 ```
 
 **Default 順序**：HTTP 試一次 → fail 即 fallback SOCKS5
 
 ### curl 用 proxy
 ```bash
-curl -x "http://utl:***@s4.hk38.ltip.xyz:20105" https://api.ipify.org
+curl -x "http://cwb:***@47.76.184.24:11908" https://api.ipify.org
 ```
 
 ---
@@ -54,7 +55,7 @@ curl -x "http://utl:***@s4.hk38.ltip.xyz:20105" https://api.ipify.org
 
 ### 一行 command
 ```bash
-PROXY="http://utl:***@s4.hk38.ltip.xyz:20105" && \
+PROXY="http://cwb:***@47.76.184.24:11908" && \
 yt-dlp --proxy "$PROXY" -f "bestaudio[ext=m4a]" -o "/tmp/audio.%(ext)s" "URL" && \
 ffmpeg -i /tmp/audio.m4a -ar 16000 -ac 1 -c:a pcm_s16le /tmp/audio.wav -y && \
 whisper /tmp/audio.wav --model base --language Chinese --output_format srt --output_dir /tmp/subs

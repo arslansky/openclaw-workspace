@@ -162,9 +162,13 @@ PDFMETRY_DONE = False
 # Installed at /usr/share/fonts/truetype/noto-custom/NotoSansTC-Variable.ttf.
 # NOTE: system Noto CJK TTC uses CFF outlines → reportlab cannot load; this
 # Google Fonts TTF uses glyf → works. (L#17 lesson)
-DEFAULT_FONT = "NotoSansTC"
-CJK_TTC = "/usr/share/fonts/truetype/noto-custom/NotoSansTC-Variable.ttf"
-CJK_TTC_SUBFONT_TC = None  # single TTF, no subfont needed
+DEFAULT_FONT = "NotoSansTC-Regular"
+NOTO_REG_TTF = "/usr/share/fonts/truetype/noto-custom/NotoSansTC-Regular.ttf"
+
+# Bold variant of Noto Sans TC (wght=700, instantiated from variable font).
+# Used for headings / emphasis to add contrast (user msgId 8262).
+BOLD_FONT = "NotoSansTC-Bold"
+NOTO_BOLD_TTF = "/usr/share/fonts/truetype/noto-custom/NotoSansTC-Bold.ttf"
 
 # Default Latin font: DejaVu Sans Mono — user choice 2026-08-03 (msgId 8254).
 # Used for English / ASCII segments inside paragraphs (dual-font mixing).
@@ -179,31 +183,28 @@ _LATIN_SEG_RE = re.compile(r"[A-Za-z0-9][A-Za-z0-9 ._+/-]*")
 
 
 def _ensure_fonts() -> None:
-    """Register default CJK (Noto Sans TC 黑體) + Latin (DejaVu Sans Mono) fonts."""
+    """Register default CJK (Noto Sans TC 黑體) + Bold + Latin (DejaVu Sans Mono)."""
     global PDFMETRY_DONE
     if PDFMETRY_DONE:
         return
+    reg_tgt = {
+        DEFAULT_FONT: NOTO_REG_TTF,
+        BOLD_FONT: NOTO_BOLD_TTF,
+        LATIN_FONT: DEJAVU_MONO_TTF,
+    }
+    for name, path in reg_tgt.items():
+        try:
+            pdfmetrics.registerFont(TTFont(name, path))
+        except Exception as e:
+            print(f"[distill_summary] warning: {name} not loadable ({e}); falling back.", file=sys.stderr)
+    # If DEFAULT_FONT failed, fallback to UKai / CID.
     try:
-        pdfmetrics.registerFont(TTFont(DEFAULT_FONT, CJK_TTC))
-    except Exception as e:
-        # Fallback: if Noto TC TTF not loadable, try UKai → CID Song.
+        pdfmetrics.getFont(DEFAULT_FONT)
+    except KeyError:
         try:
             pdfmetrics.registerFont(TTFont("ARPLUKaiTW", "/usr/share/fonts/truetype/arphic/ukai.ttc", subfontIndex=2))
         except Exception:
             pdfmetrics.registerFont(UnicodeCIDFont("STSong-Light"))
-        print(
-            f"[distill_summary] warning: Noto Sans TC not loadable ({e}); "
-            f"falling back to alternative CJK font.",
-            file=sys.stderr,
-        )
-    try:
-        pdfmetrics.registerFont(TTFont(LATIN_FONT, DEJAVU_MONO_TTF))
-    except Exception as e:
-        print(
-            f"[distill_summary] warning: DejaVuSansMono not loadable ({e}); "
-            f"Latin text will fall back to the CJK font.",
-            file=sys.stderr,
-        )
     PDFMETRY_DONE = True
 
 
@@ -307,7 +308,7 @@ def build_pdf(
         fontSize=18, leading=24, spaceAfter=12, alignment=TA_LEFT,
     )
     h2_style = ParagraphStyle(
-        "H2ZH", parent=styles["Heading2"], fontName=DEFAULT_FONT,
+        "H2ZH", parent=styles["Heading2"], fontName=BOLD_FONT,
         fontSize=13, leading=18, spaceBefore=12, spaceAfter=6,
         textColor=colors.HexColor("#1a4d80"),
     )
@@ -318,12 +319,12 @@ def build_pdf(
     quote_style = ParagraphStyle(
         "QuoteZH", parent=styles["BodyText"], fontName=DEFAULT_FONT,
         fontSize=9, leading=13, alignment=TA_LEFT, leftIndent=20,
-        textColor=colors.HexColor("#555555"), spaceAfter=4,
+        textColor=colors.HexColor("#666666"), spaceAfter=4,
     )
     meta_style = ParagraphStyle(
         "MetaZH", parent=styles["BodyText"], fontName=DEFAULT_FONT,
         fontSize=9, leading=13, alignment=TA_LEFT,
-        textColor=colors.HexColor("#666666"), spaceAfter=4,
+        textColor=colors.HexColor("#888888"), spaceAfter=4,
     )
 
     story = []

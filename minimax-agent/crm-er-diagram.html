@@ -1,0 +1,224 @@
+<!doctype html>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>CRM ER Diagram</title>
+<style>
+  :root {
+    --bg: #0f172a; --fg: #e5e7eb; --muted: #64748b;
+    --line: #334155; --pk: #fbbf24; --fk: #60a5fa;
+    --field: #86efac; --type: #f472b6; --table-h: #1e3a5f;
+    --table-b: #111827; --table-row-alt: #1a2234;
+  }
+  body { margin: 0; background: var(--bg); color: var(--fg); font: 13px/1.4 system-ui, sans-serif; }
+  main { max-width: 1200px; margin: 32px auto; padding: 0 20px; }
+  h2 { font-size: 18px; font-weight: 700; color: #e2e8f0; margin: 28px 0 12px; }
+  .er-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 20px;
+    margin: 16px 0;
+  }
+  .table {
+    border: 1.5px solid var(--line);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .table-hdr {
+    background: var(--table-h);
+    padding: 8px 12px;
+    font-weight: 700;
+    font-size: 13px;
+    color: #f1f5f9;
+    border-bottom: 1.5px solid var(--line);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .entity-label { font-size: 10px; color: #64748b; font-weight: 400; }
+  .row { padding: 6px 12px; border-bottom: 1px solid #1e293b; font-size: 12px; }
+  .row:last-child { border-bottom: none; }
+  .row:nth-child(even) { background: var(--table-row-alt); }
+  .pk { color: var(--pk); font-weight: 700; }
+  .fk { color: var(--fk); }
+  .field-name { color: var(--field); font-family: monospace; font-size: 11px; }
+  .field-type { color: var(--type); font-size: 10px; }
+  .field-null { color: #64748b; font-size: 10px; }
+  .rel-section { background: #111827; border-radius: 8px; padding: 16px; margin: 12px 0; border: 1px solid #1e293b; }
+  .rel-title { font-size: 13px; font-weight: 700; color: #94a3b8; margin-bottom: 10px; }
+  .rel-item { font-size: 12px; color: #64748b; padding: 4px 0; }
+  .rel-item code { color: #a5f3fc; background: #1e293b; padding: 1px 5px; border-radius: 3px; }
+  .rel-from { color: #86efac; }
+  .rel-to { color: #93c5fd; }
+  .note { background: #1c1f2e; border-left: 3px solid #3b82f6; padding: 10px 14px; margin: 16px 0; font-size: 12px; color: #94a3b8; }
+  code { color: #a5f3fc; background: #1e293b; padding: 1px 5px; border-radius: 3px; font-size: 11px; }
+</style>
+<main>
+
+<h2>CRM Entity-Relationship Diagram</h2>
+<div class="note">
+  All mutations go through Tools (strict layer). LLM never touches these tables directly.
+  <code>user_id</code> is enforced on ALL queries via row-level security.
+  Every write generates an <code>audit_log</code> entry.
+</div>
+
+<div class="er-grid>
+
+<!-- users -->
+<div class="table">
+  <div class="table-hdr">
+    <span>users</span><span class="entity-label">auth + assignment</span>
+  </div>
+  <div class="row"><span class="pk">id</span> <span class="field-type">UUID PK</span></div>
+  <div class="row"><span class="field-name">email</span> <span class="field-type">VARCHAR(255) UNIQUE</span> <span class="field-null">NOT NULL</span></div>
+  <div class="row"><span class="field-name">name</span> <span class="field-type">VARCHAR(200)</span> <span class="field-null">NOT NULL</span></div>
+  <div class="row"><span class="field-name">role</span> <span class="field-type">ENUM(admin,manager,sales)</span> <span class="field-null">NOT NULL</span></div>
+  <div class="row"><span class="field-name">team_id</span> <span class="field-type">UUID FK → teams.id</span> <span class="field-null">NULL</span></div>
+  <div class="row"><span class="field-name">created_at</span> <span class="field-type">TIMESTAMPTZ</span></div>
+</div>
+
+<!-- teams -->
+<div class="table">
+  <div class="table-hdr">
+    <span>teams</span><span class="entity-label">org structure</span>
+  </div>
+  <div class="row"><span class="pk">id</span> <span class="field-type">UUID PK</span></div>
+  <div class="row"><span class="field-name">name</span> <span class="field-type">VARCHAR(200)</span> <span class="field-null">NOT NULL</span></div>
+  <div class="row"><span class="field-name">manager_id</span> <span class="field-type">UUID FK → users.id</span> <span class="field-null">NULL</span></div>
+  <div class="row"><span class="field-name">created_at</span> <span class="field-type">TIMESTAMPTZ</span></div>
+</div>
+
+<!-- leads -->
+<div class="table">
+  <div class="table-hdr">
+    <span>leads</span><span class="entity-label">potential customers</span>
+  </div>
+  <div class="row"><span class="pk">id</span> <span class="field-type">UUID PK</span></div>
+  <div class="row"><span class="field-name">name</span> <span class="field-type">VARCHAR(200)</span> <span class="field-null">NOT NULL</span></div>
+  <div class="row"><span class="field-name">email</span> <span class="field-type">VARCHAR(255)</span> <span class="field-null">NOT NULL</span></div>
+  <div class="row"><span class="field-name">company</span> <span class="field-type">VARCHAR(300)</span> <span class="field-null">NULL</span></div>
+  <div class="row"><span class="field-name">source</span> <span class="field-type">ENUM(web,referral,cold)</span> <span class="field-null">NOT NULL DEFAULT web</span></div>
+  <div class="row"><span class="field-name">status</span> <span class="field-type">ENUM(new,contact_made,qualified,unqualified)</span> <span class="field-null">NOT NULL</span></div>
+  <div class="row"><span class="fk">owner_id</span> <span class="field-type">UUID FK → users.id</span> <span class="field-null">NOT NULL</span></div>
+  <div class="row"><span class="field-name">qualified_at</span> <span class="field-type">TIMESTAMPTZ</span> <span class="field-null">NULL</span></div>
+  <div class="row"><span class="field-name">created_at</span> <span class="field-type">TIMESTAMPTZ</span></div>
+  <div class="row"><span class="field-name">updated_at</span> <span class="field-type">TIMESTAMPTZ</span></div>
+</div>
+
+<!-- contacts -->
+<div class="table">
+  <div class="table-hdr">
+    <span>contacts</span><span class="entity-label">people at a company</span>
+  </div>
+  <div class="row"><span class="pk">id</span> <span class="field-type">UUID PK</span></div>
+  <div class="row"><span class="field-name">name</span> <span class="field-type">VARCHAR(200)</span> <span class="field-null">NOT NULL</span></div>
+  <div class="row"><span class="field-name">email</span> <span class="field-type">VARCHAR(255)</span></div>
+  <div class="row"><span class="field-name">phone</span> <span class="field-type">VARCHAR(50)</span></div>
+  <div class="row"><span class="field-name">role</span> <span class="field-type">VARCHAR(100)</span> <span class="field-null">NULL</span></div>
+  <div class="row"><span class="fk">company_id</span> <span class="field-type">UUID FK → leads.id</span> <span class="field-null">NOT NULL</span></div>
+  <div class="row"><span class="fk">opp_id</span> <span class="field-type">UUID FK → opportunities.id</span> <span class="field-null">NULL</span></div>
+  <div class="row"><span class="field-name">is_primary</span> <span class="field-type">BOOLEAN</span> <span class="field-null">DEFAULT false</span></div>
+  <div class="row"><span class="field-name">created_at</span> <span class="field-type">TIMESTAMPTZ</span></div>
+</div>
+
+<!-- opportunities -->
+<div class="table">
+  <div class="table-hdr">
+    <span>opportunities</span><span class="entity-label">potential deals</span>
+  </div>
+  <div class="row"><span class="pk">id</span> <span class="field-type">UUID PK</span></div>
+  <div class="row"><span class="field-name">title</span> <span class="field-type">VARCHAR(300)</span> <span class="field-null">NOT NULL</span></div>
+  <div class="row"><span class="field-name">value</span> <span class="field-type">DECIMAL(15,2)</span> <span class="field-null">DEFAULT 0</span></div>
+  <div class="row"><span class="field-name">currency</span> <span class="field-type">VARCHAR(3)</span> <span class="field-null">DEFAULT 'USD'</span></div>
+  <div class="row"><span class="field-name">stage</span> <span class="field-type">ENUM(qualified,discovery,proposal,negotiation,won,lost)</span> <span class="field-null">NOT NULL</span></div>
+  <div class="row"><span class="fk">lead_id</span> <span class="field-type">UUID FK → leads.id</span> <span class="field-null">NOT NULL</span></div>
+  <div class="row"><span class="fk">owner_id</span> <span class="field-type">UUID FK → users.id</span> <span class="field-null">NOT NULL</span></div>
+  <div class="row"><span class="field-name">stage_changed_at</span> <span class="field-type">TIMESTAMPTZ</span></div>
+  <div class="row"><span class="field-name">expected_close</span> <span class="field-type">DATE</span> <span class="field-null">NULL</span></div>
+  <div class="row"><span class="field-name">lost_reason</span> <span class="field-type">TEXT</span> <span class="field-null">NULL</span></div>
+  <div class="row"><span class="field-name">created_at</span> <span class="field-type">TIMESTAMPTZ</span></div>
+  <div class="row"><span class="field-name">updated_at</span> <span class="field-type">TIMESTAMPTZ</span></div>
+</div>
+
+<!-- tasks -->
+<div class="table">
+  <div class="table-hdr">
+    <span>tasks</span><span class="entity-label">action items</span>
+  </div>
+  <div class="row"><span class="pk">id</span> <span class="field-type">UUID PK</span></div>
+  <div class="row"><span class="field-name">title</span> <span class="field-type">VARCHAR(300)</span> <span class="field-null">NOT NULL</span></div>
+  <div class="row"><span class="field-name">description</span> <span class="field-type">TEXT</span></div>
+  <div class="row"><span class="field-name">status</span> <span class="field-type">ENUM(pending,in_progress,completed,cancelled)</span> <span class="field-null">NOT NULL</span></div>
+  <div class="row"><span class="fk">opp_id</span> <span class="field-type">UUID FK → opportunities.id</span> <span class="field-null">NULL</span></div>
+  <div class="row"><span class="fk">lead_id</span> <span class="field-type">UUID FK → leads.id</span> <span class="field-null">NULL</span></div>
+  <div class="row"><span class="fk">assigned_to</span> <span class="field-type">UUID FK → users.id</span> <span class="field-null">NOT NULL</span></div>
+  <div class="row"><span class="field-name">due_date</span> <span class="field-type">TIMESTAMPTZ</span> <span class="field-null">NULL</span></div>
+  <div class="row"><span class="field-name">completed_at</span> <span class="field-type">TIMESTAMPTZ</span> <span class="field-null">NULL</span></div>
+  <div class="row"><span class="field-name">created_at</span> <span class="field-type">TIMESTAMPTZ</span></div>
+</div>
+
+<!-- emails -->
+<div class="table">
+  <div class="table-hdr">
+    <span>emails</span><span class="entity-label">communication log</span>
+  </div>
+  <div class="row"><span class="pk">id</span> <span class="field-type">UUID PK</span></div>
+  <div class="row"><span class="fk">opp_id</span> <span class="field-type">UUID FK → opportunities.id</span> <span class="field-null">NULL</span></div>
+  <div class="row"><span class="fk">lead_id</span> <span class="field-type">UUID FK → leads.id</span> <span class="field-null">NULL</span></div>
+  <div class="row"><span class="fk">sender_id</span> <span class="field-type">UUID FK → users.id</span> <span class="field-null">NOT NULL</span></div>
+  <div class="row"><span class="field-name">direction</span> <span class="field-type">ENUM(inbound,outbound)</span> <span class="field-null">NOT NULL</span></div>
+  <div class="row"><span class="field-name">subject</span> <span class="field-type">VARCHAR(500)</span></div>
+  <div class="row"><span class="field-name">body_preview</span> <span class="field-type">TEXT</span></div>
+  <div class="row"><span class="field-name">status</span> <span class="field-type">ENUM(draft,sent,delivered,failed)</span> <span class="field-null">NOT NULL</span></div>
+  <div class="row"><span class="field-name">sent_at</span> <span class="field-type">TIMESTAMPTZ</span> <span class="field-null">NULL</span></div>
+  <div class="row"><span class="field-name">created_at</span> <span class="field-type">TIMESTAMPTZ</span></div>
+</div>
+
+<!-- audit_log -->
+<div class="table">
+  <div class="table-hdr">
+    <span>audit_log</span><span class="entity-label">immutable trail</span>
+  </div>
+  <div class="row"><span class="pk">id</span> <span class="field-type">UUID PK</span></div>
+  <div class="row"><span class="field-name">entity_type</span> <span class="field-type">VARCHAR(50)</span> <span class="field-null">NOT NULL</span></div>
+  <div class="row"><span class="field-name">entity_id</span> <span class="field-type">UUID</span> <span class="field-null">NOT NULL</span></div>
+  <div class="row"><span class="field-name">action</span> <span class="field-type">VARCHAR(50)</span> <span class="field-null">NOT NULL</span></div>
+  <div class="row"><span class="fk">actor_id</span> <span class="field-type">UUID FK → users.id</span> <span class="field-null">NOT NULL</span></div>
+  <div class="row"><span class="field-name">actor_type</span> <span class="field-type">ENUM(user,agent,system)</span> <span class="field-null">NOT NULL</span></div>
+  <div class="row"><span class="field-name">changes</span> <span class="field-type">JSONB</span> <span class="field-null">NULL — before/after</span></div>
+  <div class="row"><span class="field-name">reason</span> <span class="field-type">TEXT</span> <span class="field-null">NULL — for state transitions</span></div>
+  <div class="row"><span class="field-name">ip_address</span> <span class="field-type">INET</span> <span class="field-null">NULL</span></div>
+  <div class="row"><span class="field-name">created_at</span> <span class="field-type">TIMESTAMPTZ</span> <span class="field-null">NOT NULL</span></div>
+  <div class="row" style="background:#1c1f2e;color:#64748b;font-size:11px">⚠ No UPDATE/DELETE allowed on this table via DB triggers</div>
+</div>
+
+</div>
+
+<h2>Relationships</h2>
+<div class="rel-section">
+  <div class="rel-title">Entity Relationships</div>
+  <div class="rel-item"><span class="rel-from">users</span> ──→ <span class="rel-to">teams</span> (manager_id) — one team manager has many users</div>
+  <div class="rel-item"><span class="rel-from">leads</span> ──→ <span class="rel-to">users</span> (owner_id) — one owner, many leads</div>
+  <div class="rel-item"><span class="rel-from">leads</span> ──→ <span class="rel-to">opportunities</span> (lead_id) — one lead → one active opp</div>
+  <div class="rel-item"><span class="rel-from">contacts</span> ──→ <span class="rel-to">leads</span> (company_id) — contacts belong to a lead/company</div>
+  <div class="rel-item"><span class="rel-from">contacts</span> ──→ <span class="rel-to">opportunities</span> (opp_id) — contacts linked to a deal</div>
+  <div class="rel-item"><span class="rel-from">opportunities</span> ──→ <span class="rel-to">users</span> (owner_id) — one owner, many opps</div>
+  <div class="rel-item"><span class="rel-from">tasks</span> ──→ <span class="rel-to">opportunities</span> (opp_id) — tasks belong to a deal</div>
+  <div class="rel-item"><span class="rel-from">tasks</span> ──→ <span class="rel-to">users</span> (assigned_to) — tasks assigned to user</div>
+  <div class="rel-item"><span class="rel-from">emails</span> ──→ <span class="rel-to">opportunities</span> (opp_id) — email linked to deal</div>
+  <div class="rel-item"><span class="rel-from">emails</span> ──→ <span class="rel-to">users</span> (sender_id) — sender</div>
+  <div class="rel-item"><span class="rel-from">audit_log</span> ──→ <span class="rel-to">users</span> (actor_id) — who did it</div>
+</div>
+
+<h2>Row-Level Security ( enforced at DB level )</h2>
+<div class="note">
+  <code>user_id</code> filter is applied via a <code>getAccessibleRecords(query, user_id)</code> function. All tools call this before any SELECT.
+</div>
+<div class="rel-section">
+  <div class="rel-title">Permission Matrix</div>
+  <div class="rel-item"><code>admin</code> — can see all records in their team</div>
+  <div class="rel-item"><code>manager</code> — can see own + reports' records</div>
+  <div class="rel-item"><code>sales</code> — can see only <code>owner_id = current_user.id</code></div>
+  <div class="rel-item"><strong style="color:#ef4444">All users:</strong> cannot see <code>lost_reason</code> of other users' opportunities unless manager+</div>
+</div>
+
+</main>

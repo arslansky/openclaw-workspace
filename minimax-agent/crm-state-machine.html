@@ -1,0 +1,206 @@
+<!doctype html>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>CRM State Machine</title>
+<style>
+  :root {
+    --bg: #0f172a; --fg: #e5e7eb; --muted: #64748b;
+    --line: #475569; --neutral: #1e293b;
+    --lead: #3b82f6; --opp: #a855f7; --task: #22c55e;
+    --block: #ef4444; --allow: #22c55e;
+  }
+  body { margin: 0; background: var(--bg); color: var(--fg); font: 14px/1.4 system-ui, sans-serif; }
+  main { max-width: 1100px; margin: 32px auto; padding: 0 20px; }
+  h2 { font-size: 18px; font-weight: 700; margin: 32px 0 12px; color: #e2e8f0; }
+  h3 { font-size: 14px; font-weight: 600; margin: 20px 0 8px; color: #94a3b8; }
+  .stage { fill: var(--neutral); stroke: var(--line); stroke-width: 1.5; rx: 10; }
+  .stage-lead { fill: #1e3a5f; stroke: #3b82f6; stroke-width: 2; }
+  .stage-opp { fill: #2d1b5e; stroke: #a855f7; stroke-width: 2; }
+  .stage-task { fill: #1a3a2a; stroke: #22c55e; stroke-width: 2; }
+  .stage-block { fill: #3d1a1a; stroke: #ef4444; stroke-width: 2; }
+  .stage-end { fill: #1a3d1a; stroke: #22c55e; stroke-width: 2; }
+  .stage-text { font-size: 14px; font-weight: 700; fill: #f1f5f9; }
+  .stage-sub { font-size: 11px; fill: #94a3b8; }
+  .arrow { stroke: #475569; stroke-width: 2; fill: none; marker-end: url(#arrow); }
+  .arrow-allow { stroke: #22c55e; }
+  .arrow-block { stroke: #ef4444; stroke-dasharray: 6 4; }
+  .label { font-size: 11px; fill: #64748b; }
+  .label-allow { fill: #22c55e; font-weight: 600; }
+  .label-block { fill: #ef4444; font-weight: 600; }
+  svg { width: 100%; height: auto; display: block; }
+  .legend { display: flex; gap: 24px; margin: 16px 0; flex-wrap: wrap; }
+  .legend-item { display: flex; align-items: center; gap: 8px; font-size: 12px; color: #94a3b8; }
+  .legend-dot { width: 12px; height: 12px; border-radius: 3px; }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 12px; }
+  th { background: #1e293b; color: #94a3b8; padding: 8px 10px; text-align: left; border: 1px solid #334155; }
+  td { padding: 7px 10px; border: 1px solid #1e293b; color: #cbd5e1; vertical-align: top; }
+  tr:nth-child(even) td { background: #111827; }
+  code { background: #1e293b; padding: 1px 5px; border-radius: 3px; color: #a5f3fc; font-size: 11px; }
+  .field { color: #86efac; }
+  .pk { color: #fbbf24; }
+  .fk { color: #93c5fd; }
+  .note { background: #1c1f2e; border-left: 3px solid #3b82f6; padding: 10px 14px; margin: 12px 0; font-size: 12px; color: #94a3b8; }
+</style>
+<main>
+
+<h2>Lead State Machine</h2>
+<svg viewBox="0 0 1000 160" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L0,8 L8,4 Z" fill="#475569"/></marker></defs>
+
+  <!-- new -->
+  <rect class="stage stage-lead" x="10" y="50" width="120" height="60" rx="10"/>
+  <text class="stage-text" x="70" y="75" text-anchor="middle">new</text>
+  <text class="stage-sub" x="70" y="92" text-anchor="middle">Created</text>
+
+  <!-- contact_made -->
+  <rect class="stage stage-lead" x="190" y="50" width="140" height="60" rx="10"/>
+  <text class="stage-text" x="260" y="75" text-anchor="middle">contact_made</text>
+  <text class="stage-sub" x="260" y="92" text-anchor="middle">First Contact</text>
+
+  <!-- qualified -->
+  <rect class="stage stage-lead" x="390" y="50" width="130" height="60" rx="10"/>
+  <text class="stage-text" x="455" y="75" text-anchor="middle">qualified</text>
+  <text class="stage-sub" x="455" y="92" text-anchor="middle">Ready for Opp</text>
+
+  <!-- unqualified (block) -->
+  <rect class="stage stage-block" x="390" y="5" width="130" height="36" rx="10"/>
+  <text class="stage-text" x="455" y="23" text-anchor="middle">unqualified</text>
+
+  <!-- won -->
+  <rect class="stage stage-end" x="580" y="50" width="100" height="60" rx="10"/>
+  <text class="stage-text" x="630" y="75" text-anchor="middle">won</text>
+  <text class="stage-sub" x="630" y="92" text-anchor="middle">Deal Closed</text>
+
+  <!-- lost (block) -->
+  <rect class="stage stage-block" x="580" y="5" width="100" height="36" rx="10"/>
+  <text class="stage-text" x="630" y="23" text-anchor="middle">lost</text>
+
+  <!-- transitions -->
+  <line class="arrow" x1="130" y1="80" x2="185" y2="80"/>
+  <text class="label-allow" x="157" y="72" text-anchor="middle">add_contact()</text>
+
+  <line class="arrow" x1="330" y1="80" x2="385" y2="80"/>
+  <text class="label-allow" x="357" y="72" text-anchor="middle">qualify()</text>
+
+  <!-- qualify → unqualified -->
+  <path class="arrow arrow-block" d="M 455,50 Q 455,35 520,35 L 545,35" fill="none"/>
+  <text class="label-block" x="490" y="28" text-anchor="middle">not qualified</text>
+
+  <!-- qualified → won -->
+  <line class="arrow" x1="520" y1="80" x2="575" y2="80"/>
+  <text class="label-allow" x="547" y="72" text-anchor="middle">create_opp()</text>
+
+  <!-- qualified → lost -->
+  <path class="arrow arrow-block" d="M 455,50 Q 455,35 400,35 L 375,35" fill="none"/>
+  <text class="label-block" x="395" y="28" text-anchor="middle">mark_lost()</text>
+
+  <!-- Legend -->
+  <rect class="legend-dot" style="background:#3b82f6" x="0" y="135"/>
+  <text class="legend-item" x="16" y="146">Lead Stage</text>
+  <rect class="legend-dot" style="background:#a855f7" x="80" y="135"/>
+  <text class="legend-item" x="96" y="146">Opportunity Stage</text>
+  <rect class="legend-dot" style="background:#22c55e" x="230" y="135"/>
+  <text class="legend-item" x="246" y="146">Task State</text>
+  <rect class="legend-dot" style="background:#ef4444" x="330" y="135"/>
+  <text class="legend-item" x="346" y="146">Terminal / Blocked</text>
+  <text class="label" x="450" y="146">—— allowed transition</text>
+  <text class="label-block" x="570" y="146">-- blocked (validation)</text>
+</svg>
+
+<h2>Opportunity State Machine</h2>
+<svg viewBox="0 0 1000 220" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="arr2" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L0,8 L8,4 Z" fill="#475569"/></marker></defs>
+
+  <!-- qualified -->
+  <rect class="stage stage-opp" x="10" y="80" width="130" height="60" rx="10"/>
+  <text class="stage-text" x="75" y="105" text-anchor="middle">qualified</text>
+  <text class="stage-sub" x="75" y="122" text-anchor="middle">From Lead</text>
+
+  <!-- discovery -->
+  <rect class="stage stage-opp" x="190" y="80" width="120" height="60" rx="10"/>
+  <text class="stage-text" x="250" y="105" text-anchor="middle">discovery</text>
+  <text class="stage-sub" x="250" y="122" text-anchor="middle">Needs ≥1 Contact</text>
+
+  <!-- proposal -->
+  <rect class="stage stage-opp" x="360" y="80" width="120" height="60" rx="10"/>
+  <text class="stage-text" x="420" y="105" text-anchor="middle">proposal</text>
+  <text class="stage-sub" x="420" y="122" text-anchor="middle">Quote Sent</text>
+
+  <!-- negotiation -->
+  <rect class="stage stage-opp" x="530" y="80" width="130" height="60" rx="10"/>
+  <text class="stage-text" x="595" y="105" text-anchor="middle">negotiation</text>
+  <text class="stage-sub" x="595" y="122" text-anchor="middle">In Discussion</text>
+
+  <!-- won -->
+  <rect class="stage stage-end" x="720" y="20" width="100" height="50" rx="10"/>
+  <text class="stage-text" x="770" y="42" text-anchor="middle">won ✓</text>
+
+  <!-- lost -->
+  <rect class="stage stage-block" x="720" y="120" width="100" height="50" rx="10"/>
+  <text class="stage-text" x="770" y="142" text-anchor="middle">lost ✗</text>
+
+  <!-- won requiring approval for high-value deals -->
+  <rect class="stage stage-end" x="870" y="20" width="110" height="50" rx="10"/>
+  <text class="stage-text" x="925" y="35" text-anchor="middle">won</text>
+  <text class="stage-sub" x="925" y="50" text-anchor="middle">Awaiting Approval</text>
+
+  <!-- transitions -->
+  <line class="arrow" x1="140" y1="110" x2="185" y2="110"/>
+  <text class="label-allow" x="162" y="102" text-anchor="middle">add_contact()</text>
+
+  <line class="arrow" x1="310" y1="110" x2="355" y2="110"/>
+  <text class="label-allow" x="332" y="102" text-anchor="middle">send_quote()</text>
+
+  <line class="arrow" x1="480" y1="110" x2="525" y2="110"/>
+  <text class="label-allow" x="502" y="102" text-anchor="middle">start_negotiation()</text>
+
+  <!-- negotiation → won -->
+  <path class="arrow arrow-allow" d="M 660,90 L 690,60 L 715,45" fill="none" stroke="#22c55e"/>
+  <text class="label-allow" x="670" y="72" text-anchor="middle">close_won()</text>
+
+  <!-- negotiation → lost -->
+  <path class="arrow arrow-block" d="M 660,130 L 690,145 L 715,145" fill="none"/>
+  <text class="label-block" x="670" y="158" text-anchor="middle">close_lost()</text>
+
+  <!-- won → pending_approval (high value) -->
+  <line class="arrow arrow-block" x1="820" y1="25" x2="865" y2="25"/>
+  <text class="label-block" x="830" y="18" text-anchor="middle">deal_value &gt; limit</text>
+
+  <!-- pending_approval → won -->
+  <line class="arrow arrow-allow" x1="870" y1="45" x2="870" y2="100"/>
+  <text class="label-allow" x="885" y="72" text-anchor="middle">approved()</text>
+
+  <!-- Block labels -->
+  <text class="label" x="10" y="160">Note: Stage transitions enforce preconditions. LLM cannot skip stages.</text>
+  <text class="label-block" x="10" y="178">Blocked transitions return specific error codes → LLM reformulates request</text>
+</svg>
+
+<h2>Task State Machine</h2>
+<svg viewBox="0 0 900 120" xmlns="http://www.w3.org/2000/svg">
+  <rect class="stage stage-task" x="10" y="30" width="110" height="55" rx="10"/>
+  <text class="stage-text" x="65" y="53" text-anchor="middle">pending</text>
+  <text class="stage-sub" x="65" y="70" text-anchor="middle">Created</text>
+
+  <rect class="stage stage-task" x="180" y="30" width="110" height="55" rx="10"/>
+  <text class="stage-text" x="235" y="53" text-anchor="middle">in_progress</text>
+  <text class="stage-sub" x="235" y="70" text-anchor="middle">Working</text>
+
+  <rect class="stage stage-end" x="350" y="30" width="90" height="55" rx="10"/>
+  <text class="stage-text" x="395" y="53" text-anchor="middle">completed</text>
+  <text class="stage-sub" x="395" y="70" text-anchor="middle">Done</text>
+
+  <rect class="stage stage-block" x="500" y="30" width="90" height="55" rx="10"/>
+  <text class="stage-text" x="545" y="53" text-anchor="middle">cancelled</text>
+  <text class="stage-sub" x="545" y="70" text-anchor="middle">Aborted</text>
+
+  <line class="arrow" x1="120" y1="57" x2="175" y2="57"/>
+  <text class="label-allow" x="147" y="49" text-anchor="middle">start()</text>
+
+  <line class="arrow arrow-allow" x1="290" y1="57" x2="345" y2="57" stroke="#22c55e"/>
+  <text class="label-allow" x="317" y="49" text-anchor="middle">complete()</text>
+
+  <path class="arrow arrow-block" d="M 235,85 L 235,110 L 545,110 L 545,85" fill="none"/>
+  <text class="label-block" x="390" y="103" text-anchor="middle">cancel()</text>
+</svg>
+
+</main>

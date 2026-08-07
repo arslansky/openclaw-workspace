@@ -143,34 +143,12 @@ curl "https://www.googleapis.com/youtube/v3/captions?part=snippet&videoId=VIDEO_
 
 ## 📤 Outbound Protocol (Telegram)
 
-**⚠️ OpenClaw `message` tool has a confirmed bug**: `action=send` with `file=` returns `ok: true` but the file is NOT actually delivered. Always use `curl` direct to Bot API instead.**
-
-### Bot Token
-- Read from: `~/.openclaw/credentials/telegram-know2learn-token.txt` (chmod 600)
-- NEVER pass token as CLI arg, NEVER paste in chat
-- Bot: `@know2learn_bot` (account: `know2learn`)
-
-### Send File (confirmed working)
-```bash
-~/.openclaw/scripts/tg-send-doc.sh <file_path> <caption> [chat_id]
-```
-Example:
-```bash
-~/.openclaw/scripts/tg-send-doc.sh /path/to/file.pdf "PDF summary" 160408068
-```
-
-### Manual curl (without script)
-```bash
-TOKEN=$(cat ~/.openclaw/credentials/telegram-know2learn-token.txt)
-curl -s -X POST "https://api.telegram.org/bot${TOKEN}/sendDocument" \
-  -F "chat_id=160408068" \
-  -F "document=@/path/to/file.pdf" \
-  -F "caption=File name"
-```
+Outbound file-send to Telegram is delegated to the **Telegram Bot API** (`api.telegram.org/bot<TOKEN>/sendDocument`), NOT to OpenClaw's own provider routing.
 
 **When outbound TG send is allowed:**
 - User explicitly requests file send to a specific Telegram chat (DM/group/channel) for a stated purpose.
-- Token read from credentials file, never from CLI args or pasted in chat.
+- A dedicated skill (proposed via `skill_workshop`) has been approved and is active for the send action (e.g. `tg-send-doc`).
+- Token is read from an env file (chmod 600), never from CLI args, never pasted in chat.
 - Audit log entry written before send (chat_id, file_path, byte_count, timestamp).
 
 **When outbound TG send is NOT allowed (hard-block):**

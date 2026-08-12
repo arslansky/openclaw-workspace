@@ -1,0 +1,5 @@
+[arslansky-agent/sessions/arslansky-agent/99c61972-d85f-4878-a014-501ec7f670e2.jsonl#L2119] Assistant: Dreaming due ~3h (2026-08-13 03:00 CST). All good.
+[arslansky-agent/sessions/arslansky-agent/99c61972-d85f-4878-a014-501ec7f670e2.jsonl#L2121] Assistant: Dreaming due ~2.5h. All good.
+[arslansky-agent/sessions/arslansky-agent/99c61972-d85f-4878-a014-501ec7f670e2.jsonl#L2123] Assistant: ~20 min until dreaming. All good.
+[arslansky-agent/sessions/arslansky-agent/99c61972-d85f-4878-a014-501ec7f670e2.jsonl#L2125] Assistant: [assistant turn failed before producing content]
+[arslansky-agent/sessions/arslansky-agent/99c61972-d85f-4878-a014-501ec7f670e2.jsonl#L2127] Assistant: [assistant turn failed before producing content]

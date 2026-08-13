@@ -137,3 +137,8 @@ WORD /pronunciation/ · part of speech · **中文粗體**
 
 <!-- openclaw-memory-promotion:memory:memory/ops/2026-07-20.md:1:22 -->
 - ## 04:05｜Snapshot Diff（自動 detect） **新增檔案：** - /home/ubuntu/.openclaw/workspace/ds-agent/IDENTITY.md - /home/ubuntu/.openclaw/workspace/ds-agent/memory/2026-07-16.md - /home/ubuntu/.openclaw/workspace/ds-agent/memory/2026-07-17.md - /home/ubuntu/.openclaw/workspace/ds-agent/memory/2026-07-18.md - /home/ubuntu/.openclaw/workspace/ds-agent/memory/2026-07-19.md - /home/ubuntu/.openclaw/workspace/ds-agent/memory/ops/2026-07-19.md - /home/ubuntu/.openclaw/workspace/ds-agent/memory/ops/2026-07-19-part2.md - /home/ubuntu/.openclaw/workspace/ds-agent/memory/ops/2026-07-19-part3.md -... [score=0.873 recalls=3 avg=1.000 source=memory/ops/2026-07-20.md:1-22]
+
+## Promoted From Short-Term Memory (2026-08-14)
+
+<!-- openclaw-memory-promotion:memory:memory/ops/2026-07-28.md:19:40 -->
+- /home/ubuntu/.openclaw/workspace/minimax-agent/memory/dreaming/rem/2026-07-28.md - /home/ubuntu/.openclaw/workspace/minimax-agent/memory/.dreams/session-corpus/2026-07-27.txt > ⚠️ 以上係 snapshot diff 自動 detect 嘅變化。如果有操作但 ops log 冇記錄，請補寫。 ## 22:43｜Image Folder Reorganization + Vision Model Setup **操作：** 1. 舊圖（181張）集中到 `images/archive/legacy/` 2. 建立 folder structure：`evie/{lolita,gothic,portrait}`, `characters`, `reference`, `experiments` 3. 清空 21 個空 date folders 4.... [score=0.808 recalls=3 avg=1.000 source=memory/ops/2026-07-28.md:19-40]

@@ -78,3 +78,11 @@
 [arslansky-agent/sessions/arslansky-agent/99c61972-d85f-4878-a014-501ec7f670e2.jsonl#L2425] Assistant: Dreaming due ~7.75h. All good.
 [arslansky-agent/sessions/arslansky-agent/99c61972-d85f-4878-a014-501ec7f670e2.jsonl#L2427] Assistant: Dreaming due ~7.5h.
 [arslansky-agent/sessions/arslansky-agent/99c61972-d85f-4878-a014-501ec7f670e2.jsonl#L2429] Assistant: ~20 min until dreaming. All good.
+[arslansky-agent/sessions/arslansky-agent/99c61972-d85f-4878-a014-501ec7f670e2.jsonl#L2433] Assistant: Still pending. Dreaming due ~23:00 CST tonight.
+[arslansky-agent/sessions/arslansky-agent/99c61972-d85f-4878-a014-501ec7f670e2.jsonl#L2435] Assistant: Dreaming due ~22.3h. All good.
+[arslansky-agent/sessions/arslansky-agent/99c61972-d85f-4878-a014-501ec7f670e2.jsonl#L2437] Assistant: Dreaming due ~21.75h. All good.
+[arslansky-agent/sessions/arslansky-agent/99c61972-d85f-4878-a014-501ec7f670e2.jsonl#L2439] Assistant: Dreaming due ~21.25h.
+[arslansky-agent/sessions/arslansky-agent/99c61972-d85f-4878-a014-501ec7f670e2.jsonl#L2441] Assistant: Dreaming due ~20.75h. All good.
+[arslansky-agent/sessions/arslansky-agent/99c61972-d85f-4878-a014-501ec7f670e2.jsonl#L2443] Assistant: Dreaming due ~20h.
+[arslansky-agent/sessions/arslansky-agent/99c61972-d85f-4878-a014-501ec7f670e2.jsonl#L2445] Assistant: Dreaming due ~19.75h. All good.
+[arslansky-agent/sessions/arslansky-agent/99c61972-d85f-4878-a014-501ec7f670e2.jsonl#L2447] Assistant: Dreaming due ~19h (2026-08-16 03:00 CST). All good.

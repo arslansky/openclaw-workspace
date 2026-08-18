@@ -38,3 +38,27 @@
 [arslansky-agent/sessions/arslansky-agent/fe6a9b95-24f6-4a5f-9497-667299ccf6a1.jsonl#L5] User: Write a dream diary entry from these memory fragments: - Assistant: **fitz 確認：0 boxes，0 nulls，PDF 完全正常！** pypdf 之前顯示啲 boxes 係佢自己嘅 bug，唔關 PDF 事。用 fitz 讀就係乾淨嘅中文。 - Assistant: **快成 20 倍！** 14 分鐘 audio 只需 99 秒。立刻行完整 transcription！ - Assistant: **有了！** N
 [arslansky-agent/sessions/arslansky-agent/fe6a9b95-24f6-4a5f-9497-667299ccf6a1.jsonl#L6] Assistant: I woke with the quiet satisfaction of someone who has wrestled a PDF into stillness and won. The document had been giving me trouble — or perhaps I had been giving it trouble, the way you push against something that pushes back. fitz read it cl
 [arslansky-agent/sessions/arslansky-agent/fe6a9b95-24f6-4a5f-9497-667299ccf6a1.jsonl#L6] Assistant: numbers still hum in me like a tuning fork. And there was the Node, brave little runtime, solving a door that only had audio behind it. No video. Just sound, reaching through the dark. I caught it and whispered its transpose into being. A trans
+[arslansky-agent/sessions/arslansky-agent/99c61972-d85f-4878-a014-501ec7f670e2.jsonl#L2547] Assistant: ~20 min until dreaming. All good.
+[arslansky-agent/sessions/arslansky-agent/99c61972-d85f-4878-a014-501ec7f670e2.jsonl#L2549] Assistant: ~18 min until dreaming. All good.
+[arslansky-agent/sessions/arslansky-agent/99c61972-d85f-4878-a014-501ec7f670e2.jsonl#L2553] Assistant: [assistant turn failed before producing content]
+[arslansky-agent/sessions/arslansky-agent/99c61972-d85f-4878-a014-501ec7f670e2.jsonl#L2559] Assistant: Dreaming due ~1.25h (2026-08-16T19:00 UTC / 03:00 CST). All good.
+[arslansky-agent/sessions/arslansky-agent/99c61972-d85f-4878-a014-501ec7f670e2.jsonl#L2561] Assistant: Still pending — due ~22min. All good.
+[arslansky-agent/sessions/arslansky-agent/99c61972-d85f-4878-a014-501ec7f670e2.jsonl#L2563] Assistant: ~18 min past due. Still pending. All good.
+[arslansky-agent/sessions/arslansky-agent/99c61972-d85f-4878-a014-501ec7f670e2.jsonl#L2567] Assistant: 🌙 Dreaming completed 03:00 CST — light + REM + deep all done. All healthy. ✨
+[arslansky-agent/sessions/arslansky-agent/99c61972-d85f-4878-a014-501ec7f670e2.jsonl#L2569] Assistant: Dreaming due ~24h (2026-08-18 03:00 CST). All good.
+[arslansky-agent/sessions/arslansky-agent/99c61972-d85f-4878-a014-501ec7f670e2.jsonl#L2573] Assistant: New commit (8eab51b: YT progress tracker) + ops log active ✅ | GitHub backup at 2026-08-16 (syncs today).
+[arslansky-agent/sessions/arslansky-agent/99c61972-d85f-4878-a014-501ec7f670e2.jsonl#L2575] Assistant: Dreaming due ~23h. All good.
+[arslansky-agent/sessions/arslansky-agent/99c61972-d85f-4878-a014-501ec7f670e2.jsonl#L2579] Assistant: GitHub backup ✅ (9f7c5b0) — new commit synced.
+[arslansky-agent/sessions/arslansky-agent/99c61972-d85f-4878-a014-501ec7f670e2.jsonl#L2581] Assistant: Dreaming due ~21h. All good.
+[arslansky-agent/sessions/arslansky-agent/99c61972-d85f-4878-a014-501ec7f670e2.jsonl#L2585] Assistant: Dreaming due ~20h. All good.
+[arslansky-agent/sessions/arslansky-agent/99c61972-d85f-4878-a014-501ec7f670e2.jsonl#L2589] Assistant: Dreaming due ~19h.
+[arslansky-agent/sessions/arslansky-agent/99c61972-d85f-4878-a014-501ec7f670e2.jsonl#L2593] Assistant: Dreaming due ~18h.
+[arslansky-agent/sessions/arslansky-agent/99c61972-d85f-4878-a014-501ec7f670e2.jsonl#L2595] Assistant: Dreaming due ~17.75h.
+[arslansky-agent/sessions/arslansky-agent/99c61972-d85f-4878-a014-501ec7f670e2.jsonl#L2597] Assistant: Dreaming due ~17h.
+[arslansky-agent/sessions/arslansky-agent/99c61972-d85f-4878-a014-501ec7f670e2.jsonl#L2599] Assistant: Dreaming due ~16.75h.
+[arslansky-agent/sessions/arslansky-agent/99c61972-d85f-4878-a014-501ec7f670e2.jsonl#L2601] Assistant: Dreaming due ~16h.
+[arslansky-agent/sessions/arslansky-agent/99c61972-d85f-4878-a014-501ec7f670e2.jsonl#L2605] Assistant: GitHub backup ✅ | Toolbox sync ✅ | Dreaming due ~16h.
+[arslansky-agent/sessions/arslansky-agent/99c61972-d85f-4878-a014-501ec7f670e2.jsonl#L2607] Assistant: Dreaming due ~15h.
+[arslansky-agent/sessions/arslansky-agent/99c61972-d85f-4878-a014-501ec7f670e2.jsonl#L2609] Assistant: Dreaming due ~14.75h.
+[arslansky-agent/sessions/arslansky-agent/99c61972-d85f-4878-a014-501ec7f670e2.jsonl#L2611] Assistant: Dreaming due ~14h.
+[arslansky-agent/sessions/arslansky-agent/99c61972-d85f-4878-a014-501ec7f670e2.jsonl#L2613] Assistant: Dreaming due ~13.5h.

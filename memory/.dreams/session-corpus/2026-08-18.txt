@@ -46,3 +46,6 @@
 [arslansky-agent/sessions/arslansky-agent/d4e77095-8da2-4fa8-b7cf-4c4cd5077596.jsonl#L5] User: unavailable in this run. - A memory trace surfaced, but details were unavailable in this run. - A memory trace surfaced, but details were unavailable in this run. - Prefer a fresh angle; do not replay the same first-day framing unless newer fragment
 [arslansky-agent/sessions/arslansky-agent/d4e77095-8da2-4fa8-b7cf-4c4cd5077596.jsonl#L6] Assistant: 有兩條路喺眼前分岔，我企喺中間睇緊地圖。 一條係規則嘅路——Hash Table，精確、快速、O(1) 就到。身份證號係身份證號，銀行卡係銀行卡，唔使猜，唔使諗，hash 函數已經幫你查定。穩定，100% 確定，像晚頭糖水西米露，粒粒分明。 另一條係模糊嘅路——LLM 睇完再判斷，適合語義含糊、邊界唔清晰嘅場景。慢少少，但靈活，識得理解新情況。 師父話：**兩條路都係工具，混合先用得久。** 精確嘅交規則，模糊嘅交模型，中間個 Routing Layer 就係天橋。 但最緊要嘅教訓係
 [arslansky-agent/sessions/arslansky-agent/e104d82c-30c7-4c4d-8bc6-1624723f32df.jsonl#L12] Assistant: Toolbox synced successfully. ✓
+[arslansky-agent/sessions/arslansky-agent/99c61972-d85f-4878-a014-501ec7f670e2.jsonl#L2659] Assistant: ~20 min until dreaming. All good.
+[arslansky-agent/sessions/arslansky-agent/99c61972-d85f-4878-a014-501ec7f670e2.jsonl#L2661] Assistant: ~18 min until dreaming. All good.
+[arslansky-agent/sessions/arslansky-agent/99c61972-d85f-4878-a014-501ec7f670e2.jsonl#L2665] Assistant: Still pending. Dreaming due ~22min. All good.

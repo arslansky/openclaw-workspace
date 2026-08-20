@@ -49,3 +49,27 @@
 [arslansky-agent/sessions/arslansky-agent/99c61972-d85f-4878-a014-501ec7f670e2.jsonl#L2659] Assistant: ~20 min until dreaming. All good.
 [arslansky-agent/sessions/arslansky-agent/99c61972-d85f-4878-a014-501ec7f670e2.jsonl#L2661] Assistant: ~18 min until dreaming. All good.
 [arslansky-agent/sessions/arslansky-agent/99c61972-d85f-4878-a014-501ec7f670e2.jsonl#L2665] Assistant: Still pending. Dreaming due ~22min. All good.
+[arslansky-agent/sessions/arslansky-agent/99c61972-d85f-4878-a014-501ec7f670e2.jsonl#L2667] Assistant: ~22 min past due. Still pending. All good.
+[arslansky-agent/sessions/arslansky-agent/99c61972-d85f-4878-a014-501ec7f670e2.jsonl#L2673] Assistant: Dreaming ~1h12min overdue — might be a slight cron delay. System otherwise healthy (git active, ops logs flowing). Will report if it doesn't fire soon. HEARTBEAT_OK
+[arslansky-agent/sessions/arslansky-agent/99c61972-d85f-4878-a014-501ec7f670e2.jsonl#L2683] Assistant: Dreaming did run — light file dated 2026-08-17 03:00 CST confirmed. Events log just buffering. All healthy. 🌙 HEARTBEAT_OK
+[arslansky-agent/sessions/arslansky-agent/99c61972-d85f-4878-a014-501ec7f670e2.jsonl#L2687] Assistant: [assistant turn failed before producing content]
+[arslansky-agent/sessions/arslansky-agent/99c61972-d85f-4878-a014-501ec7f670e2.jsonl#L2691] Assistant: Ops log active ✅ | GitHub backup at 2026-08-17 | Dreaming confirmed ✅ (light 37099 bytes, 2026-08-17). All healthy.
+[arslansky-agent/sessions/arslansky-agent/99c61972-d85f-4878-a014-501ec7f670e2.jsonl#L2693] Assistant: Dreaming due ~24h (2026-08-19 03:00 CST). All good.
+[arslansky-agent/sessions/arslansky-agent/99c61972-d85f-4878-a014-501ec7f670e2.jsonl#L2695] Assistant: Dreaming due ~23h.
+[arslansky-agent/sessions/arslansky-agent/99c61972-d85f-4878-a014-501ec7f670e2.jsonl#L2697] Assistant: Dreaming due ~22h.
+[arslansky-agent/sessions/arslansky-agent/99c61972-d85f-4878-a014-501ec7f670e2.jsonl#L2701] Assistant: Dreaming due ~21h.
+[arslansky-agent/sessions/arslansky-agent/99c61972-d85f-4878-a014-501ec7f670e2.jsonl#L2705] Assistant: Dreaming due ~19h.
+[arslansky-agent/sessions/arslansky-agent/99c61972-d85f-4878-a014-501ec7f670e2.jsonl#L2709] Assistant: Dreaming due ~18h.
+[arslansky-agent/sessions/arslansky-agent/99c61972-d85f-4878-a014-501ec7f670e2.jsonl#L2711] Assistant: Dreaming due ~18h.
+[arslansky-agent/sessions/arslansky-agent/99c61972-d85f-4878-a014-501ec7f670e2.jsonl#L2713] Assistant: Dreaming due ~17h.
+[arslansky-agent/sessions/arslansky-agent/99c61972-d85f-4878-a014-501ec7f670e2.jsonl#L2715] Assistant: Dreaming due ~16.75h.
+[arslansky-agent/sessions/arslansky-agent/99c61972-d85f-4878-a014-501ec7f670e2.jsonl#L2717] Assistant: Dreaming due ~16h.
+[arslansky-agent/sessions/arslansky-agent/99c61972-d85f-4878-a014-501ec7f670e2.jsonl#L2721] Assistant: GitHub backup ✅ (bd9e012) | Toolbox sync ✅ | Dreaming due ~16h.
+[arslansky-agent/sessions/arslansky-agent/99c61972-d85f-4878-a014-501ec7f670e2.jsonl#L2723] Assistant: Dreaming due ~15h.
+[arslansky-agent/sessions/arslansky-agent/99c61972-d85f-4878-a014-501ec7f670e2.jsonl#L2725] Assistant: Dreaming due ~15h.
+[arslansky-agent/sessions/arslansky-agent/99c61972-d85f-4878-a014-501ec7f670e2.jsonl#L2727] Assistant: Dreaming due ~14h.
+[arslansky-agent/sessions/arslansky-agent/99c61972-d85f-4878-a014-501ec7f670e2.jsonl#L2729] Assistant: Dreaming due ~13.75h.
+[arslansky-agent/sessions/arslansky-agent/99c61972-d85f-4878-a014-501ec7f670e2.jsonl#L2731] Assistant: Dreaming due ~13h.
+[arslansky-agent/sessions/arslansky-agent/99c61972-d85f-4878-a014-501ec7f670e2.jsonl#L2733] Assistant: Dreaming due ~13h.
+[arslansky-agent/sessions/arslansky-agent/99c61972-d85f-4878-a014-501ec7f670e2.jsonl#L2735] Assistant: Dreaming due ~12h.
+[arslansky-agent/sessions/arslansky-agent/99c61972-d85f-4878-a014-501ec7f670e2.jsonl#L2737] Assistant: Dreaming due ~11.75h.
